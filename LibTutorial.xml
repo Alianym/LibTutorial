@@ -1,0 +1,11 @@
+<GuiXml>
+    <Controls>
+        <TopLevelControl name="Lib_Tutorial">
+            <AnchorFill />
+            
+            <OnInitialized>
+                Lib_Tutorial_Initialize(self)
+            </OnInitialized>
+        </TopLevelControl>
+    </Controls>
+</GuiXml>
