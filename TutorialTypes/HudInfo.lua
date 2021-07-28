@@ -87,8 +87,6 @@ function LibTutorial_HudInfo:DisplayTutorial(tutorialIndex, title, desc)
 end
 
 function LibTutorial_HudInfo:OnDisplayTutorial(tutorialIndex, priority, title, desc)
-    d("TEST")
-
     if not self:IsTutorialDisplayedOrQueued(tutorialIndex) then
         if not self:CanShowTutorial() then
             local _, insertPosition = zo_binarysearch(priority, self.queue, BinaryInsertComparer)

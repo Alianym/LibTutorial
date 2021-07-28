@@ -6,8 +6,12 @@
 ## APIVersion: 100035
 
 ;Tutorial Types
+
+TutorialTypes/BriefHud.lua
 TutorialTypes/HudInfo.lua
-TutorialTypes/BriefHudTutorial.lua
+TutorialTypes/UIInfoBox.lua
+TutorialTypes/UIInfoBox.xml
+TutorialTypes/PointerBox.lua
 
 ;Main
 LibTutorial.lua
