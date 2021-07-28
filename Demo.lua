@@ -28,12 +28,6 @@ LibTutorial.Example = {
 		tutorialType = LIB_TUTORIAL_TYPE_UI_INFO_BOX, 
 		displayPriority = 1, 
 	},
-	["pointerbox"] = {
-		title = GetString(LIBTUTORIAL_EXAMPLE_TITLE), 
-		text = GetString(LIBTUTORIAL_EXAMPLE_TEXT_LONG),
-		tutorialType = LIB_TUTORIAL_TYPE_UI_INFO_BOX, 
-		displayPriority = 1, 
-	},
 }
 
 LIB_TUTORIAL_EXAMPLE = LibTutorialSetup:New(LibTutorial.Example)
