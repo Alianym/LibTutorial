@@ -11,6 +11,7 @@ TutorialTypes/BriefHud.lua
 TutorialTypes/HudInfo.lua
 TutorialTypes/UIInfoBox.lua
 TutorialTypes/UIInfoBox.xml
+TutorialTypes/PointerBox.lua
 
 ;Main
 LibTutorial.lua
