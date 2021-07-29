@@ -139,23 +139,21 @@ function LibTutorial_UiInfoBox:DisplayTutorial(tutorialIndex, title, desc)
 end
 
 function LibTutorial_UiInfoBox:OnDisplayTutorial(tutorialIndex, priority, title, desc)
-    if not IsGameCameraActive() or SCENE_MANAGER:IsInUIMode() then
+    --if not IsGameCameraActive() or SCENE_MANAGER:IsInUIMode() then
         if not self:IsTutorialDisplayedOrQueued(tutorialIndex) then
             if self:CanShowTutorial() then
                 self:DisplayTutorial(tutorialIndex, title, desc)
             end
         end
-    end
+    --end
 end
 
 function LibTutorial_UiInfoBox:OnRemoveTutorial(tutorialIndex)
     self:RemoveTutorial(tutorialIndex, TUTORIAL_SEEN)
 end
 
---Could use a "Must Implement"?
 function LibTutorial_UiInfoBox:SetTutorialSeen(tutorialIndex)
-    --SetTutorialSeen(tutorialIndex)
-    d("Tutorial Set to Seen")
+    --Overridden
 end
 
 function LibTutorial_UiInfoBox:RemoveTutorial(tutorialIndex, seen)

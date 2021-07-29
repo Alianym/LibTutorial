@@ -1,3 +1,5 @@
+--Set up a Must Implement (SetTutorialSeen)
+
 -----
 --Initialize
 -----
@@ -13,6 +15,25 @@ end
 
 function LibTutorial:Initialize(tutorialArray)
 	self:RegisterTutorials(tutorialArray)
+
+	local obj = self
+	function LibTutorial_HudInfo:SetTutorialSeen(tutorialIndex)
+		obj:SetTutorialSeen(tutorialIndex)
+	end
+	function LibTutorial_BriefHud:SetTutorialSeen(tutorialIndex)
+		obj:SetTutorialSeen(tutorialIndex)
+	end
+	function LibTutorial_UiInfoBox:SetTutorialSeen(tutorialIndex)
+		obj:SetTutorialSeen(tutorialIndex)
+	end
+
+	function LibTutorial_HudInfo:GetTutorialInfo(tutorialIndex)
+		return obj:GetLibTutorialInfo(tutorialIndex)
+	end
+end
+
+function LibTutorial:SetTutorialSeen(tutorialIndex)
+	--Should Override
 end
 
 function LibTutorial:RegisterTutorials(tutorialArray)
@@ -27,16 +48,16 @@ function LibTutorial:RegisterTutorials(tutorialArray)
 	self.tutorials = newTutorialArray
 end
 
-function LibTutorialSetup:DisplayTutorial(obj, tutorialIndex)
+function LibTutorial:DisplayTutorial(tutorialIndex)
 	local tutorialIndex = HashString(tutorialIndex)
 
-	if not obj.tutorials[tutorialIndex] then return end
+	if not self.tutorials[tutorialIndex] then return end
 
-	local tutorialType = obj:GetLibTutorialType(tutorialIndex)
+	local tutorialType = self:GetLibTutorialType(tutorialIndex)
 
 	if TUTORIAL_SYSTEM.tutorialHandlers[tutorialType] then
-		local priority = obj:GetLibTutorialDisplayPriority(tutorialIndex)
-		local title, desc = obj:GetLibTutorialInfo(tutorialIndex)
+		local priority = self:GetLibTutorialDisplayPriority(tutorialIndex)
+		local title, desc = self:GetLibTutorialInfo(tutorialIndex)
 		TUTORIAL_SYSTEM.tutorialHandlers[tutorialType]:OnDisplayTutorial(tutorialIndex, priority, title, desc)
 	end
 end

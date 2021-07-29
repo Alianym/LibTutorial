@@ -42,14 +42,16 @@ function LibTutorial_HudInfo:GetTutorialType()
     return LIB_TUTORIAL_TYPE_HUD_INFO
 end
 
---Could use a "Must Implement"?
+function LibTutorial_HudInfo:GetTutorialInfo(tutorialIndex)
+    --Overriden
+end
+
 function LibTutorial_HudInfo:SetTutorialSeen(tutorialIndex)
-    --SetTutorialSeen(tutorialIndex)
-    d("Tutorial Set to Seen")
+    --Overridden
 end
 
 local BASE_TUTORIAL_HEIGHT = 170
-function LibTutorial_HudInfo:DisplayTutorial(tutorialIndex, title, desc)
+function LibTutorial_HudInfo:DisplayTutorial(tutorialIndex)
     self.tutorialIndex = tutorialIndex
     local isInGamepadMode = IsInGamepadPreferredMode()
     if isInGamepadMode then
@@ -60,7 +62,7 @@ function LibTutorial_HudInfo:DisplayTutorial(tutorialIndex, title, desc)
         self.tutorialAnimation = self.tutorialAnimationKeyboard
     end
 
-    local title, description = title, desc
+    local title, description = self:GetTutorialInfo(tutorialIndex)
     local helpCategoryIndex, helpIndex = nil --GetTutorialLinkedHelpInfo(tutorialIndex)
     local hasHelp = helpCategoryIndex ~= nil and helpIndex ~= nil
     self.tutorial.title:SetText(title)
@@ -86,13 +88,13 @@ function LibTutorial_HudInfo:DisplayTutorial(tutorialIndex, title, desc)
     PlaySound(SOUNDS.TUTORIAL_INFO_SHOWN)
 end
 
-function LibTutorial_HudInfo:OnDisplayTutorial(tutorialIndex, priority, title, desc)
+function LibTutorial_HudInfo:OnDisplayTutorial(tutorialIndex, priority)
     if not self:IsTutorialDisplayedOrQueued(tutorialIndex) then
         if not self:CanShowTutorial() then
             local _, insertPosition = zo_binarysearch(priority, self.queue, BinaryInsertComparer)
             table.insert(self.queue, insertPosition, tutorialIndex)
         else
-            self:DisplayTutorial(tutorialIndex, title, desc)
+            self:DisplayTutorial(tutorialIndex)
         end
     end
 end

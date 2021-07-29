@@ -64,10 +64,8 @@ function LibTutorial_BriefHud:SuppressTutorials(suppress, reason)
     -- input so the player ought to know why
 end
 
---Could use a "Must Implement"?
 function LibTutorial_BriefHud:SetTutorialSeen(tutorialIndex)
-    --SetTutorialSeen(tutorialIndex)
-    d("Tutorial Set to Seen")
+    --Overridden
 end
 
 function LibTutorial_BriefHud:DisplayTutorial(tutorialIndex, title, desc)

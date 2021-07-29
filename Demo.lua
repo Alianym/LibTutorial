@@ -1,38 +1,60 @@
- -- TutorialType -->
--- TUTORIAL_TYPE_HUD_BRIEF
--- TUTORIAL_TYPE_HUD_INFO_BOX
--- TUTORIAL_TYPE_POINTER_BOX
--- TUTORIAL_TYPE_UI_INFO_BOX
+-- TutorialType Constants -->
+-- LIB_TUTORIAL_TYPE_HUD_BRIEF
+-- LIB_TUTORIAL_TYPE_HUD_INFO
+-- LIB_TUTORIAL_TYPE_UI_INFO_BOX
 
-ZO_CreateStringId("LIBTUTORIAL_EXAMPLE_TITLE", "Test Tutorial Heading")
+ZO_CreateStringId("LIBTUTORIAL_EXAMPLE_TITLE_SHORT", "Test Tutorial")
+ZO_CreateStringId("LIBTUTORIAL_EXAMPLE_TITLE_LONG", "Test Tutorial Expanded")
 ZO_CreateStringId("LIBTUTORIAL_EXAMPLE_TEXT_SHORT", "This is test tutorial text so you can see how this works.")
 ZO_CreateStringId("LIBTUTORIAL_EXAMPLE_TEXT_LONG", "This is some longer test tutorial text so you can see how this works with more text in the example.")
 
 LibTutorial.ExampleList = {
 	["hudbrief"] = {
-		--title = GetString(LIBTUTORIAL_EXAMPLE_TITLE), --No title displayed nor needed for this Tutorial Type.
-		text = GetString(LIBTUTORIAL_EXAMPLE_TEXT_SHORT), --(string)
-		tutorialType = LIB_TUTORIAL_TYPE_HUD_BRIEF, --LibTutorial Global
-		displayPriority = 1, 
+		title = "",												--(string) No title displayed nor needed for this Tutorial Type
+		text = GetString(LIBTUTORIAL_EXAMPLE_TEXT_SHORT),		--(string)
+		tutorialType = LIB_TUTORIAL_TYPE_HUD_BRIEF,				--LibTutorial Global
+		displayPriority = nil,									--Not used for this Tutorial Type
+	},
+	["hudbrieftwo"] = {
+		title = "",												--(string) No title displayed nor needed for this Tutorial Type
+		text = GetString(LIBTUTORIAL_EXAMPLE_TEXT_LONG),		--(string)
+		tutorialType = LIB_TUTORIAL_TYPE_HUD_BRIEF,				--LibTutorial Global
+		displayPriority = nil,									--Not used for this Tutorial Type
 	},
 	["hudinfo"] = {
-		title = GetString(LIBTUTORIAL_EXAMPLE_TITLE), 
-		text = GetString(LIBTUTORIAL_EXAMPLE_TEXT_LONG),
-		tutorialType = LIB_TUTORIAL_TYPE_HUD_INFO, 
-		displayPriority = 1, 
+		title = GetString(LIBTUTORIAL_EXAMPLE_TITLE_SHORT),		--(string) 
+		text = GetString(LIBTUTORIAL_EXAMPLE_TEXT_SHORT),		--(string)
+		tutorialType = LIB_TUTORIAL_TYPE_HUD_INFO,				--LibTutorial Global
+		displayPriority = 1,									--(number) Determines priority when inserted into the queue
+	},
+	["hudinfotwo"] = {
+		title = GetString(LIBTUTORIAL_EXAMPLE_TITLE_LONG),		--(string)
+		text = GetString(LIBTUTORIAL_EXAMPLE_TEXT_LONG),		--(string)
+		tutorialType = LIB_TUTORIAL_TYPE_HUD_INFO,				--LibTutorial Global
+		displayPriority = 2,									--(number) Determines priority relative to other queued tutorials when inserted into the queue
 	},
 	["uiinfo"] = {
-		title = GetString(LIBTUTORIAL_EXAMPLE_TITLE), 
-		text = GetString(LIBTUTORIAL_EXAMPLE_TEXT_LONG),
-		tutorialType = LIB_TUTORIAL_TYPE_UI_INFO_BOX, 
-		displayPriority = 1, 
+		title = GetString(LIBTUTORIAL_EXAMPLE_TITLE_SHORT),		--(string)
+		text = GetString(LIBTUTORIAL_EXAMPLE_TEXT_SHORT),		--(string)
+		tutorialType = LIB_TUTORIAL_TYPE_UI_INFO_BOX,			--LibTutorial Global
+		displayPriority = nil,									--Not used for this Tutorial Type
+	},
+	["uiinfotwo"] = {
+		title = GetString(LIBTUTORIAL_EXAMPLE_TITLE_LONG),		--(string)
+		text = GetString(LIBTUTORIAL_EXAMPLE_TEXT_LONG),		--(string)
+		tutorialType = LIB_TUTORIAL_TYPE_UI_INFO_BOX,			--LibTutorial Global
+		displayPriority = nil,									--Not used for this Tutorial Type
 	},
 }
 
+--Setup
 LIB_TUTORIAL_EXAMPLE = LibTutorialSetup:New(LibTutorial.ExampleList)
-
-local function DisplayTutorialExample(tutorialIndex)
-	local obj = LIB_TUTORIAL_EXAMPLE
-	LibTutorialSetup:DisplayTutorial(obj, tutorialIndex) --This is the main function you'd use to display your tutorial.
+function LIB_TUTORIAL_EXAMPLE:SetTutorialSeen(tutorialIndex)
+	CHAT_ROUTER:AddDebugMessage("Tutorial Seen") --Replace this with SavedVar updates or however/if you want to track if a Tutorial has been seen.
 end
-SLASH_COMMANDS["/libtutorialexample"] = DisplayTutorialExample
+
+--Example Slash Command + Function
+local function DisplayTutorialExample(tutorialIndex)
+	LIB_TUTORIAL_EXAMPLE:DisplayTutorial(tutorialIndex) --This is the main function you'd use to display your tutorial.
+end
+SLASH_COMMANDS["/libtutex"] = DisplayTutorialExample --E.G. Usage: /libtuteex hudinfo
