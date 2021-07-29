@@ -28,6 +28,8 @@ function LibTutorial:RegisterTutorials(tutorialArray)
 end
 
 function LibTutorialSetup:DisplayTutorial(obj, tutorialIndex)
+	local tutorialIndex = HashString(tutorialIndex)
+
 	if not obj.tutorials[tutorialIndex] then return end
 
 	local tutorialType = obj:GetLibTutorialType(tutorialIndex)
@@ -67,7 +69,6 @@ local function OnLoad(e, addOnName)
 	TUTORIAL_SYSTEM:AddTutorialHandler(LibTutorial_HudInfo:New(ZO_Tutorial))
 	TUTORIAL_SYSTEM:AddTutorialHandler(LibTutorial_BriefHud:New(ZO_Tutorial))
 	TUTORIAL_SYSTEM:AddTutorialHandler(LibTutorial_UiInfoBox:New(ZO_Tutorial))
-	TUTORIAL_SYSTEM:AddTutorialHandler(LibTutorial_PointerBox:New(ZO_Tutorial))
 
 	EVENT_MANAGER:UnregisterForEvent("LibTutorial", EVENT_ADD_ON_LOADED) 
 end

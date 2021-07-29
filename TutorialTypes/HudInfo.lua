@@ -44,7 +44,7 @@ end
 
 --Could use a "Must Implement"?
 function LibTutorial_HudInfo:SetTutorialSeen(tutorialIndex)
-    SetTutorialSeen(tutorialIndex)
+    --SetTutorialSeen(tutorialIndex)
     d("Tutorial Set to Seen")
 end
 

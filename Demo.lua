@@ -8,12 +8,11 @@ ZO_CreateStringId("LIBTUTORIAL_EXAMPLE_TITLE", "Test Tutorial Heading")
 ZO_CreateStringId("LIBTUTORIAL_EXAMPLE_TEXT_SHORT", "This is test tutorial text so you can see how this works.")
 ZO_CreateStringId("LIBTUTORIAL_EXAMPLE_TEXT_LONG", "This is some longer test tutorial text so you can see how this works with more text in the example.")
 
-LibTutorial.ExampleName = "LibTutorial-ExampleName"
-LibTutorial.Example = {
+LibTutorial.ExampleList = {
 	["hudbrief"] = {
-		--title = GetString(LIBTUTORIAL_EXAMPLE_TITLE), 
-		text = GetString(LIBTUTORIAL_EXAMPLE_TEXT_SHORT),
-		tutorialType = LIB_TUTORIAL_TYPE_HUD_BRIEF, 
+		--title = GetString(LIBTUTORIAL_EXAMPLE_TITLE), --No title displayed nor needed for this Tutorial Type.
+		text = GetString(LIBTUTORIAL_EXAMPLE_TEXT_SHORT), --(string)
+		tutorialType = LIB_TUTORIAL_TYPE_HUD_BRIEF, --LibTutorial Global
 		displayPriority = 1, 
 	},
 	["hudinfo"] = {
@@ -30,10 +29,10 @@ LibTutorial.Example = {
 	},
 }
 
-LIB_TUTORIAL_EXAMPLE = LibTutorialSetup:New(LibTutorial.Example)
+LIB_TUTORIAL_EXAMPLE = LibTutorialSetup:New(LibTutorial.ExampleList)
 
-local function DisplayTutorial(tutorialIndex) --, obj)
-	local tutorialIndex = HashString(tutorialIndex)
-	LibTutorialSetup:DisplayTutorial(LIB_TUTORIAL_EXAMPLE, tutorialIndex)
+local function DisplayTutorialExample(tutorialIndex)
+	local obj = LIB_TUTORIAL_EXAMPLE
+	LibTutorialSetup:DisplayTutorial(obj, tutorialIndex) --This is the main function you'd use to display your tutorial.
 end
-SLASH_COMMANDS["/libtutorialexample"] = DisplayTutorial
+SLASH_COMMANDS["/libtutorialexample"] = DisplayTutorialExample
