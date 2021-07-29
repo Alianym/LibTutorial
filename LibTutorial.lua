@@ -4,15 +4,14 @@
 --Initialize
 -----
 
-LibTutorial = ZO_Object:Subclass()
 LibTutorialSetup = {}
-
 function LibTutorialSetup:New(tutorialArray)
 	local libTutorial = ZO_Object:New(LibTutorial)
 	libTutorial:Initialize(tutorialArray)
 	return libTutorial
 end
 
+local LibTutorial = ZO_Object:Subclass()
 function LibTutorial:Initialize(tutorialArray)
 	self:RegisterTutorials(tutorialArray)
 
@@ -51,7 +50,9 @@ end
 function LibTutorial:DisplayTutorial(tutorialIndex)
 	local tutorialIndex = HashString(tutorialIndex)
 
-	if not self.tutorials[tutorialIndex] then return end
+	if not self.tutorials[tutorialIndex] then 
+		CHAT_ROUTER:AddDebugMessage("LibTutorial: No tutorialIndex found.")
+	return end
 
 	local tutorialType = self:GetLibTutorialType(tutorialIndex)
 
