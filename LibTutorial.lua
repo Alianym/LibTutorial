@@ -5,13 +5,14 @@
 -----
 
 LibTutorialSetup = {}
+local LibTutorial = ZO_Object:Subclass()
+
 function LibTutorialSetup:New(tutorialArray)
 	local libTutorial = ZO_Object:New(LibTutorial)
 	libTutorial:Initialize(tutorialArray)
 	return libTutorial
 end
 
-local LibTutorial = ZO_Object:Subclass()
 function LibTutorial:Initialize(tutorialArray)
 	self:RegisterTutorials(tutorialArray)
 
