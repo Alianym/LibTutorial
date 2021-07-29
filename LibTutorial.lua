@@ -52,7 +52,7 @@ function LibTutorial:DisplayTutorial(tutorialIndex)
 	local tutorialIndex = HashString(tutorialIndex)
 
 	if not self.tutorials[tutorialIndex] then 
-		CHAT_ROUTER:AddDebugMessage("LibTutorial: No tutorialIndex found.")
+		CHAT_ROUTER:AddDebugMessage("<LibTutorial> No tutorialIndex found.")
 	return end
 
 	local tutorialType = self:GetLibTutorialType(tutorialIndex)
