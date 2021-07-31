@@ -48,7 +48,7 @@ local tutorialExampleList = {
 }
 
 --Setup
-LIB_TUTORIAL_EXAMPLE = LibTutorialSetup:New(tutorialExampleList)
+LIB_TUTORIAL_EXAMPLE = LibTutorialSetup.New(tutorialExampleList)
 function LIB_TUTORIAL_EXAMPLE:SetTutorialSeen(tutorialIndex)
 	CHAT_ROUTER:AddDebugMessage("Tutorial Seen") --Replace this with SavedVar updates or however/if you want to track if a Tutorial has been seen.
 end

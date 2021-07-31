@@ -7,7 +7,7 @@
 LibTutorialSetup = {}
 local LibTutorial = ZO_Object:Subclass()
 
-function LibTutorialSetup:New(tutorialArray)
+function LibTutorialSetup.New(tutorialArray)
 	local libTutorial = ZO_Object:New(LibTutorial)
 	libTutorial:Initialize(tutorialArray)
 	return libTutorial
