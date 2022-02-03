@@ -1,4 +1,6 @@
-v0.2 (??/??/??)
+v0.2 (07/31/21)
     – Initial Release
 
 Dates are U.S. Format
+
+Note: With no obj:SetTutorialSeen(tutorialIndex) set, the default behaviour in the game is to allow it trigger and re-trigger during a playsession, but upon a /reloadui it counts it as seen until the character logs out. This is likely tied into the default game behaviour into which I'm tying my code, but resets on character logout because of the AddOn source and loading circumstances.
