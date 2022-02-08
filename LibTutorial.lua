@@ -26,10 +26,6 @@ function LibTutorial:Initialize(tutorialArray)
 	function LibTutorial_UiInfoBox:SetTutorialSeen(tutorialIndex)
 		obj:SetTutorialSeen(tutorialIndex)
 	end
-
-	function LibTutorial_HudInfo:GetTutorialInfo(tutorialIndex)
-		return obj:GetLibTutorialInfo(tutorialIndex)
-	end
 end
 
 function LibTutorial:SetTutorialSeen(tutorialIndex)
