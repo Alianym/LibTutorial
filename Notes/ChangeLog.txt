@@ -1,3 +1,12 @@
+v1.10 (??/??/22)
+    - New Feature! Tutorials can attach to UI controls. (See Demo for a SLASH_COMMAND to run an example in the LibTutorials LAM window) 
+        - (Credit to Baertram for the idea)
+    - To-Do:
+        - "Oh and it would be great if you could also provide a way to add an exitCustomCallback (currentTutId) which, if specified at the current tut step, is run as the tut is aborted: e.g. scroll back to the top or something like that"
+        - Add a "OnTutorialSequenceExit()" function to handle repeat steps such as "backdrop":SetHidden(true)?
+            - This can be added at noChoiceCallback and callback for "next" and "exit" buttons
+
+
 v1.02 (02/08/22)
     - Bug Fix: Fixed an issue with HudInfo-type Tutorials that would cause issues if more than one author attempted to use that type at once
 
@@ -13,3 +22,9 @@ v0.2 (07/31/21)
 Dates are U.S. Format
 
 Note: With no obj:SetTutorialSeen(tutorialIndex) set, the default behaviour in the game is to allow it trigger and re-trigger during a playsession, but upon a /reloadui it counts it as seen until the character logs out. This is likely tied into the default game behaviour into which I'm tying my code, but resets on character logout because of the AddOn source and loading circumstances.
+
+----------
+----------
+
+Current Issues/Points to Examine:
+    - You can swap to another AddOn's LAM panel and the tutorial won't disappear. Due to validation it won't show the next one though. Could be acceptable?

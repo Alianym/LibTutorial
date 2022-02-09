@@ -1,10 +1,11 @@
 ## Title: LibTutorial
 ## Author: Alianym
 ## Description: An ESO AddOn library for creating Tutorial notifications 
-## Version: 1.02
-## AddOnVersion: 000102
+## Version: 1.10
+## AddOnVersion: 000110
 ## IsLibrary: true
 ## APIVersion: 101032
+## OptionalDependsOn: LibAddonMenu-2.0
 
 ;Tutorial Types
 
