@@ -160,7 +160,7 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 
 	local tutorialDetails = {tutSteps = tutorialSteps, tutObj = self, nextCustomCallback = tutorial.nextCustomCallback, exitCustomCallback = tutorial.exitCustomCallback, backdropCtrl = backdropCtrl, title = title, desc = tutorial.text, nextTutorialStepIndex = nextTutorialStepIndex + 1}
 
-	TUTORIAL_SYSTEM.tutorialHandlers[tutorialType]:OnDisplayTutorial(currentStepId, _, tutorialDetails)
+	TUTORIAL_SYSTEM.tutorialHandlers[tutorialType]:OnDisplayTutorial(currentStepId, _, _, _, tutorialDetails)
 end
 
 -----
