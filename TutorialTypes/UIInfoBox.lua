@@ -51,6 +51,9 @@ function LibTutorial_UiInfoBox:Initialize()
 				clickSound = SOUNDS.DIALOG_ACCEPT,
 				visible = function(dialog) return dialog.data.tutorialDetails end,
 				callback =  function(dialog)
+					local isTutorialSequence = true
+					dialog.data.owner:RemoveTutorial(dialog.data.tutorialIndex, TUTORIAL_SEEN, isTutorialSequence)
+
 					local tutorialDetails = dialog.data.tutorialDetails
 					local nextTutorialStepIndex = tutorialDetails.nextTutorialStepIndex
 					
@@ -59,8 +62,7 @@ function LibTutorial_UiInfoBox:Initialize()
 							tutorialDetails.nextCustomCallback(tutorialDetails.tutSteps[nextTutorialStepIndex].id)
 						end
 						tutorialDetails.tutObj:StartTutorialSequence(tutorialDetails.tutSteps, tutorialDetails.nextTutorialStepIndex)
-					end, 1)
-					dialog.data.owner:RemoveTutorial(dialog.data.tutorialIndex, TUTORIAL_SEEN)
+					end, 100)					
 				end,
 			},
 			{
@@ -71,13 +73,17 @@ function LibTutorial_UiInfoBox:Initialize()
 				callback =  function(dialog)
 					dialog.data.owner:RemoveTutorial(dialog.data.tutorialIndex, TUTORIAL_SEEN)
 
-					if not dialog.data.tutorialDetails then return end
+					----------
+					--noChoiceCallback fires when this button is pressed
+					----------
+					--[[if not dialog.data.tutorialDetails then return end
 					local tutorialDetails = dialog.data.tutorialDetails
 					local nextTutorialStepIndex = tutorialDetails.nextTutorialStepIndex
 
 					if tutorialDetails.exitCustomCallback then
+						d("--", "DIALOG_NEGATIVE")
 						tutorialDetails.exitCustomCallback(tutorialDetails.tutSteps[nextTutorialStepIndex-1].id)
-					end
+					end]]
 				end,
 			},
 		}
@@ -118,7 +124,8 @@ function LibTutorial_UiInfoBox:Initialize()
 						dialog.data.owner:RemoveTutorial(dialog.data.tutorialIndex, TUTORIAL_SEEN)
 
 						--It might be worth examining how this will work with GP tutorial chains/queues
-						if not dialog.data.tutorialDetails then return end
+						--This takes up too much of the screen in GP mode, so might just use the KB version in tutorial sequences
+						--[[if not dialog.data.tutorialDetails then return end
 						local tutorialDetails = dialog.data.tutorialDetails
 						local nextTutorialStepIndex = tutorialDetails.nextTutorialStepIndex
 
@@ -127,7 +134,7 @@ function LibTutorial_UiInfoBox:Initialize()
 								tutorialDetails.nextCustomCallback(tutorialDetails.tutSteps[nextTutorialStepIndex].id)
 							end
 							tutorialDetails.tutObj:StartTutorialSequence(tutorialDetails.tutSteps, tutorialDetails.nextTutorialStepIndex)
-						end, 1)
+						end, 1)]]
 					end,
 				}
 			},
@@ -135,22 +142,22 @@ function LibTutorial_UiInfoBox:Initialize()
 				if dialog.data then
 					dialog.data.owner:RemoveTutorial(dialog.data.tutorialIndex, TUTORIAL_SEEN)
 
-					if not dialog.data.tutorialDetails then return end
+					--[[if not dialog.data.tutorialDetails then return end
 					local tutorialDetails = dialog.data.tutorialDetails
 					local nextTutorialStepIndex = tutorialDetails.nextTutorialStepIndex
 
 					if tutorialDetails.exitCustomCallback then
 						tutorialDetails.exitCustomCallback(tutorialDetails.tutSteps[nextTutorialStepIndex-1].id)
-					end
+					end]]
 				end
 			end,
 			finishedCallback = function(dialog)
 				if dialog.data then
 					FireTutorialHiddenEvent(dialog.data.tutorialIndex)
 
-					if not dialog.data.tutorialDetails then return end
+					--[[if not dialog.data.tutorialDetails then return end
 					local tutorialDetails = dialog.data.tutorialDetails
-					tutorialDetails.tutObj:OnTutorialCurrentStepFin(tutorialDetails)
+					tutorialDetails.tutObj:OnTutorialCurrentStepFin(tutorialDetails)]]
 				end
 			end,
 			removedFromQueueCallback = function(data)
@@ -181,14 +188,11 @@ function LibTutorial_UiInfoBox:DisplayTutorial(tutorialIndex, title, desc, tutor
 	self.title = (tutorialDetails and tutorialDetails.title) or title
 	self.description = (tutorialDetails and tutorialDetails.desc) or desc
 
-	d(self.title, self.description)
-
 	self:SetCurrentlyDisplayedTutorialIndex(tutorialIndex)
 	self.gamepadMode = IsInGamepadPreferredMode()
 
-	if self.gamepadMode then
-		ZO_Dialogs_ShowDialog("LIB_TUTORIAL_UI_INFO", { tutorialIndex = tutorialIndex, owner = self, tutorialDetails = tutorialDetails })
-		--ZO_Dialogs_ShowGamepadDialog("LIB_TUTORIAL_UI_INFO_GAMEPAD", { tutorialIndex = tutorialIndex, owner = self, tutorialDetails = tutorialDetails})
+	if self.gamepadMode and not tutorialDetails then
+		ZO_Dialogs_ShowGamepadDialog("LIB_TUTORIAL_UI_INFO_GAMEPAD", { tutorialIndex = tutorialIndex, owner = self, tutorialDetails = tutorialDetails})
 	else
 		self.dialogInfo.title.text = self.title
 		self.dialogDescription:SetText(self.description)
@@ -224,14 +228,16 @@ function LibTutorial_UiInfoBox:SetTutorialSeen(tutorialIndex)
 	--Overridden
 end
 
-function LibTutorial_UiInfoBox:RemoveTutorial(tutorialIndex, seen)
+function LibTutorial_UiInfoBox:RemoveTutorial(tutorialIndex, seen, isTutorialSequence)
 	if self:GetCurrentlyDisplayedTutorialIndex() == tutorialIndex then
 		if seen then
 			self:SetTutorialSeen(tutorialIndex)
 		end
 
 		self:SetCurrentlyDisplayedTutorialIndex(nil)
-		ZO_Dialogs_ReleaseDialog("LIB_TUTORIAL_UI_INFO")
+		if not isTutorialSequence then 
+			ZO_Dialogs_ReleaseDialog("LIB_TUTORIAL_UI_INFO")
+		end
 		ZO_Dialogs_ReleaseDialog("LIB_TUTORIAL_UI_INFO_GAMEPAD")
 	else
 		self:RemoveFromQueue(self.queue, tutorialIndex)
