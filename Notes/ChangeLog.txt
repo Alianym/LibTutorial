@@ -2,9 +2,6 @@ v1.10 (??/??/22)
     - New Feature! Tutorials can attach to UI controls. (See Demo for a SLASH_COMMAND to run an example in the LibTutorials LAM window) 
         - (Credit to Baertram for the idea)
     - To-Do:
-        - DONE "Oh and it would be great if you could also provide a way to add an exitCustomCallback (currentTutId) which, if specified at the current tut step, is run as the tut is aborted: e.g. scroll back to the top or something like that"
-        - DONE Add a "OnTutorialSequenceExit()" function to handle repeat steps such as "backdrop":SetHidden(true)?
-            - This can be added at noChoiceCallback and callback for "next" and "exit" buttons
 
 
 v1.02 (02/08/22)
