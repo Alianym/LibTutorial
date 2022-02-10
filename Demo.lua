@@ -62,6 +62,9 @@ local tutorialStepsExample = {
 			--(It will be called -before- the next tutorialStep is shown)
 		nextCustomCallback = function(nextTutStepId) d(zo_strformat("ID: <<1>>, nextCustomCallback", nextTutStepId)) end,
 
+		--Callback that triggers when a user selects the "exit" button or otherwise closes out without selecting 'next' on the tutorial popup
+		exitCustomCallback = function(currTutStepId) d(zo_strformat("ID: <<1>>, exitCustomCallback", currTutStepId)) end,
+
 		--anchorToControlData: Can be just the (string) controlName, or;
 		--{ (number) whereOnAnchor, (string) anchorTargetControlName, (number) whereOnAnchorTarget, (number) offsetX, (number) offsetY }
 		anchorToControlData = {LEFT, "LibTutorialDescriptionCtrl", RIGHT, 100},
@@ -70,21 +73,22 @@ local tutorialStepsExample = {
 		id = "libtutuilamtwo",
 		title = "Test Tutorial Sequence",
 		text = "Test <LibTutorialCheckBoxCtrl> Text!",
-		nextCustomCallback = function(nextTutStepId) d(zo_strformat("ID: <<1>>, nextCustomCallback", nextTutStepId)) end,
+		nextCustomCallback = function(nextTutStepId) end,
 		anchorToControlData = "LibTutorialCheckBoxCtrl",
 	},
 	[3] = {
 		id = "libtutuilamthree",
 		title = "Test Tutorial Sequence",
 		text = "Test <LibTutorialHeaderCtrl> Text!",
-		nextCustomCallback = function(nextTutStepId) d(zo_strformat("ID: <<1>>, nextCustomCallback", nextTutStepId)) end,
+		--nextCustomCallback = function(nextTutStepId) end,
+		--exitCustomCallback = function(currTutStepId) end,
 		anchorToControlData = "LibTutorialHeaderCtrl",
 	},
 	[4] = {
 		id = "libtutuilamfour",
 		title = "Test Tutorial Sequence",
 		text = "Test <LibTutorialEditBox> Text!",
-		nextCustomCallback = function(nextTutStepId) d(zo_strformat("ID: <<1>>, nextCustomCallback", nextTutStepId)) end,
+		--nextCustomCallback = function(nextTutStepId) end,
 		anchorToControlData = "LibTutorialEditBox",
 	},
 }

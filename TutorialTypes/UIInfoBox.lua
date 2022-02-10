@@ -24,10 +24,18 @@ function LibTutorial_UiInfoBox:Initialize()
 		customControl = dialogControl,
 		noChoiceCallback = function(dialog)
 			local tutorialDetails = dialog.data.tutorialDetails
-			tutorialDetails.backdropCtrl:SetHidden(true)
+			local nextTutorialStepIndex = tutorialDetails.nextTutorialStepIndex
+			
+			if tutorialDetails.exitCustomCallback then
+				tutorialDetails.exitCustomCallback(tutorialDetails.tutSteps[nextTutorialStepIndex-1].id)
+			end
+
 			dialog.data.owner:RemoveTutorial(dialog.data.tutorialIndex, TUTORIAL_SEEN)
 		end,
 		finishedCallback = function(dialog)
+			local tutorialDetails = dialog.data.tutorialDetails
+			tutorialDetails.tutObj:OnTutorialCurrentStepFin(tutorialDetails)
+
 			if dialog.data then
 				FireTutorialHiddenEvent(dialog.data.tutorialIndex)
 			end
@@ -42,7 +50,7 @@ function LibTutorial_UiInfoBox:Initialize()
 				callback =  function(dialog)
 					local tutorialDetails = dialog.data.tutorialDetails
 					local nextTutorialStepIndex = tutorialDetails.nextTutorialStepIndex
-					tutorialDetails.backdropCtrl:SetHidden(true)
+					
 					zo_callLater(function()
 						if tutorialDetails.nextCustomCallback and tutorialDetails.tutSteps[nextTutorialStepIndex] then
 							tutorialDetails.nextCustomCallback(tutorialDetails.tutSteps[nextTutorialStepIndex].id)
@@ -59,7 +67,12 @@ function LibTutorial_UiInfoBox:Initialize()
 				clickSound = SOUNDS.DIALOG_ACCEPT,
 				callback =  function(dialog)
 					local tutorialDetails = dialog.data.tutorialDetails
-					tutorialDetails.backdropCtrl:SetHidden(true)
+					local nextTutorialStepIndex = tutorialDetails.nextTutorialStepIndex
+
+					if tutorialDetails.exitCustomCallback then
+						tutorialDetails.exitCustomCallback(tutorialDetails.tutSteps[nextTutorialStepIndex-1].id)
+					end
+
 					dialog.data.owner:RemoveTutorial(dialog.data.tutorialIndex, TUTORIAL_SEEN)
 				end,
 			},
@@ -100,7 +113,8 @@ function LibTutorial_UiInfoBox:Initialize()
 					callback =  function(dialog)
 						--It might be worth examining how this will work with GP tutorial chains/queues
 						local tutorialDetails = dialog.data.tutorialDetails
-						tutorialDetails.backdropCtrl:SetHidden(true)
+						local nextTutorialStepIndex = tutorialDetails.nextTutorialStepIndex
+
 						zo_callLater(function()
 							if tutorialDetails.nextCustomCallback then
 								tutorialDetails.nextCustomCallback(tutorialDetails.tutSteps[nextTutorialStepIndex].id)
@@ -114,12 +128,20 @@ function LibTutorial_UiInfoBox:Initialize()
 			noChoiceCallback = function(dialog)
 				if dialog.data then
 					local tutorialDetails = dialog.data.tutorialDetails
-					tutorialDetails.backdropCtrl:SetHidden(true)
+					local nextTutorialStepIndex = tutorialDetails.nextTutorialStepIndex
+
+					if tutorialDetails.exitCustomCallback then
+						tutorialDetails.exitCustomCallback(tutorialDetails.tutSteps[nextTutorialStepIndex-1].id)
+					end
+
 					dialog.data.owner:RemoveTutorial(dialog.data.tutorialIndex, TUTORIAL_SEEN)
 				end
 			end,
 			finishedCallback = function(dialog)
 				if dialog.data then
+					local tutorialDetails = dialog.data.tutorialDetails
+					tutorialDetails.tutObj:OnTutorialCurrentStepFin(tutorialDetails)
+					
 					FireTutorialHiddenEvent(dialog.data.tutorialIndex)
 				end
 			end,

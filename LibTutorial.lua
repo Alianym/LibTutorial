@@ -89,6 +89,10 @@ end
 --Tutorial sequence handling (could probably wind up usable for any controls)
 -----
 
+function LibTutorial:OnTutorialCurrentStepFin(tutorialDetails)
+	tutorialDetails.backdropCtrl:SetHidden(true)
+end
+
 function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 	local tutorial
 	local currentStepId
@@ -96,6 +100,7 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 
 	if nextTutorialStepIndex and nextTutorialStepIndex > #tutorialSteps then
 		CHAT_ROUTER:AddDebugMessage("<LibTutorial> Tutorial Sequence Finished.")
+		return
 	elseif nextTutorialStepIndex then
 		tutorial = tutorialSteps[nextTutorialStepIndex]
 		currentStepId = HashString(tutorial.id)
@@ -153,7 +158,7 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 
 	local title = sequenceOptions.showStepNumInTitle and zo_strformat("<<1>> <<2>>/<<3>>", tutorial.title, nextTutorialStepIndex, #tutorialSteps) or tutorial.title
 
-	local tutorialDetails = {tutSteps = tutorialSteps, tutObj = self, nextCustomCallback = tutorial.nextCustomCallback, backdropCtrl = backdropCtrl, title = title, desc = tutorial.text, nextTutorialStepIndex = nextTutorialStepIndex + 1}
+	local tutorialDetails = {tutSteps = tutorialSteps, tutObj = self, nextCustomCallback = tutorial.nextCustomCallback, exitCustomCallback = tutorial.exitCustomCallback, backdropCtrl = backdropCtrl, title = title, desc = tutorial.text, nextTutorialStepIndex = nextTutorialStepIndex + 1}
 
 	TUTORIAL_SYSTEM.tutorialHandlers[tutorialType]:OnDisplayTutorial(currentStepId, _, tutorialDetails)
 end
