@@ -298,13 +298,19 @@ local optionsTable = {
 
 -----
 -----
+local function addTutorialHandler(tutorialTypeClass, tutorialControl)
+	tutorialControl = tutorialControl or ZO_Tutorial
+	TUTSYS:AddTutorialHandler(tutorialTypeClass:New(tutorialControl))
+end
+
 
 local function OnLoad(e, addOnName)
 	if addOnName ~= libName then return end
+	--Add the tutorial types as handlers to the TUTORIAL_SYSTEM
+	addTutorialHandler(LibTutorial_HudInfo, nil)
+	addTutorialHandler(LibTutorial_BriefHud, nil)
+	addTutorialHandler(LibTutorial_UiInfoBox, nil)
 
-	TUTSYS:AddTutorialHandler(LibTutorial_HudInfo:New(ZO_Tutorial))
-	TUTSYS:AddTutorialHandler(LibTutorial_BriefHud:New(ZO_Tutorial))
-	TUTSYS:AddTutorialHandler(LibTutorial_UiInfoBox:New(ZO_Tutorial))
 
 	if LibAddonMenu2 then
 		local LAM = LibAddonMenu2
