@@ -21,12 +21,17 @@
 local tos = tostring
 local zostrfor = zo_strformat
 
+local zoTutorialCtrl = ZO_Tutorial
 local TUTSYS = TUTORIAL_SYSTEM
 
 
 -----
 --Local functions
 -----
+local function addTutorialHandler(tutorialTypeClass, tutorialControl)
+	tutorialControl = tutorialControl or zoTutorialCtrl
+	TUTSYS:AddTutorialHandler(tutorialTypeClass:New(tutorialControl))
+end
 
 
 -----
@@ -302,11 +307,6 @@ local optionsTable = {
 -----
 --- Loading the addon
 -----
-local zoTutorialCtrl = ZO_Tutorial
-local function addTutorialHandler(tutorialTypeClass, tutorialControl)
-	tutorialControl = tutorialControl or zoTutorialCtrl
-	TUTSYS:AddTutorialHandler(tutorialTypeClass:New(tutorialControl))
-end
 
 
 local function OnLoad(e, addOnName)
@@ -319,6 +319,12 @@ local function OnLoad(e, addOnName)
 		[LibTutorial_BriefHud] = 	zoTutorialCtrl,
 		[LibTutorial_UiInfoBox] = 	zoTutorialCtrl,
 	}
+	--todo: Other plugins will need an # DependsOn: LibTutorial>=<versionWhereThePLuginSystemWasAdded> and then need to
+	--register their new Tutorial type LibTutorial_<newType> glbal via a function <theirLibTutorialSetup.NewObject>:AddTutorialType(LibTutorial_<newType>, LibTutorial_<control>)
+	--It will be added to the table libTutSetup.tutorialHandlers then and update it + load the tutorial via function
+	--addTutorialHandler(tutType, tutCtrl) so it can be used after that within the library
+	--Maybe any LAM settings menu needs an update than OR needs to load at EVENT_PLAYER_ACTIVATED once (unregister the event in this lib again) then to show all plugin loaded
+	--data properly!
 	libTutSetup.tutorialHandlers = tutorialHandlersToLoad
 
 	--Add the tutorial types as handlers to the TUTORIAL_SYSTEM
