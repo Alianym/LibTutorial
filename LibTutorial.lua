@@ -45,7 +45,9 @@ local LibTutorial = ZO_Object:Subclass()
 local libTutSetup = {
 	name 	= 	"LibTutorial",
 	author  =   "Alianym",
-	version = 	"1.10"
+	version = 	"1.10",
+
+	tutorialHandlers = {}
 }
 LibTutorialSetup = libTutSetup
 local libName = libTutSetup.name
@@ -296,20 +298,33 @@ local optionsTable = {
 	},
 }
 
+
 -----
+--- Loading the addon
 -----
+local zoTutorialCtrl = ZO_Tutorial
 local function addTutorialHandler(tutorialTypeClass, tutorialControl)
-	tutorialControl = tutorialControl or ZO_Tutorial
+	tutorialControl = tutorialControl or zoTutorialCtrl
 	TUTSYS:AddTutorialHandler(tutorialTypeClass:New(tutorialControl))
 end
 
 
 local function OnLoad(e, addOnName)
 	if addOnName ~= libName then return end
+
+	--Preparation for a tutorial type "plugin system": Add all tut handlers to a table which could be added to via e.g.
+	--LibTutorialSetup:AddTutorialType from external plugin files
+	local tutorialHandlersToLoad = {
+		[LibTutorial_HudInfo] = 	zoTutorialCtrl,
+		[LibTutorial_BriefHud] = 	zoTutorialCtrl,
+		[LibTutorial_UiInfoBox] = 	zoTutorialCtrl,
+	}
+	libTutSetup.tutorialHandlers = tutorialHandlersToLoad
+
 	--Add the tutorial types as handlers to the TUTORIAL_SYSTEM
-	addTutorialHandler(LibTutorial_HudInfo, nil)
-	addTutorialHandler(LibTutorial_BriefHud, nil)
-	addTutorialHandler(LibTutorial_UiInfoBox, nil)
+	for k,v in pairs(tutorialHandlersToLoad) do
+		addTutorialHandler(k, v)
+	end
 
 
 	if LibAddonMenu2 then
