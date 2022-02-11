@@ -87,7 +87,8 @@ function LibTutorial:RegisterTutorials(tutorialArray)
 	local newTutorialArray = {}
 
 	for id, values in pairs(tutorialArray) do
-		assert((type(id)=="number" and id > 9999) or (type(id)=="string" and #id >= 5), "Invalid ID Value")
+		local idType = type(id)
+		assert((idType=="number" and id > 9999) or (idType=="string" and #id >= 5), "Invalid ID Value")
 		newTutorialArray[HashString(id)] = values
 	end
 
