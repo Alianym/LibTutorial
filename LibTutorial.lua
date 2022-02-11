@@ -14,6 +14,22 @@
 
 
 -----
+--Local library info
+-----
+
+--Library global setup table
+local libTutSetup = {
+	name 	= 	"LibTutorial",
+	author  =   "Alianym",
+	version = 	"1.10",
+
+	tutorialHandlers = {}
+}
+--Library global variable
+LibTutorialSetup = libTutSetup
+
+
+-----
 --Local variables
 -----
 
@@ -21,13 +37,31 @@
 local tos = tostring
 local zostrfor = zo_strformat
 
+--ZOs controls
 local zoTutorialCtrl = ZO_Tutorial
+
+--ZOs tables/objects
+local EM = EVENT_MANAGER
+local CR = CHAT_ROUTER
 local TUTSYS = TUTORIAL_SYSTEM
 
+--Library locals
+local libName = libTutSetup.name
+local chatErrorColorPrefix = "|cFF0000"
+local chatColorSuffix = "|r"
+local chatLibPrefix = "<" .. libName ..">"
 
 -----
 --Local functions
 -----
+
+local function chatOutputTouser(msgText, isError)
+	if not msgText then return end
+	isError = isError or false
+	msgText = (isError and (chatErrorColorPrefix .. msgText .. chatColorSuffix)) or msgText
+	CR:AddSystemMessage(chatLibPrefix .. msgText)
+end
+
 local function addTutorialHandler(tutorialTypeClass, tutorialControl)
 	tutorialControl = tutorialControl or zoTutorialCtrl
 	TUTSYS:AddTutorialHandler(tutorialTypeClass:New(tutorialControl))
@@ -45,17 +79,6 @@ local LibTutorial = ZO_Object:Subclass()
 -----
 --Library LibTutorial object creation
 -----
-
---Library global setup table
-local libTutSetup = {
-	name 	= 	"LibTutorial",
-	author  =   "Alianym",
-	version = 	"1.10",
-
-	tutorialHandlers = {}
-}
-LibTutorialSetup = libTutSetup
-local libName = libTutSetup.name
 
 --Library object creation function. Use this to create a new instance of the LibTutorial class for your addon.
 --Returns: objectTable LibTutorialObject
@@ -106,8 +129,9 @@ function LibTutorial:DisplayTutorial(tutorialIndex)
 	local tutorialIndexHashed = HashString(tutorialIndex)
 
 	if not self.tutorials[tutorialIndexHashed] then
-		d("<LibTutorial> No tutorialIndex found: " ..tos(tutorialIndex))
-	return end
+		chatOutputTouser("No tutorialIndex found: " ..tos(tutorialIndex), true)
+		return
+	end
 
 	local tutorialType = self:GetLibTutorialType(tutorialIndexHashed)
 
@@ -157,7 +181,7 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 	local sequenceOptions = tutorialSteps.options
 
 	if nextTutorialStepIndex and nextTutorialStepIndex > #tutorialSteps then
-		d("<LibTutorial> Tutorial Sequence Finished.")
+		chatOutputTouser("Tutorial Sequence Finished.")
 		return
 	elseif nextTutorialStepIndex then
 		tutorial = tutorialSteps[nextTutorialStepIndex]
@@ -166,18 +190,18 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 		nextTutorialStepIndex = 1
 		tutorial = tutorialSteps[1]
 		currentStepId = HashString(tutorial.id)
-		d("<LibTutorial> Tutorial Sequence Started.")
+		chatOutputTouser("Tutorial Sequence Started.")
 	end
 
 	if not tutorial then 
-		d("<LibTutorial> No tutorialSteps found.")
+		chatOutputTouser("No tutorialSteps found.", true)
 	return end
 
 	local tutorialType = sequenceOptions.tutorialType or LIB_TUTORIAL_TYPE_UI_INFO_BOX
 	local anchorToControlData = tutorial.anchorToControlData
 
 	if not anchorToControlData or not tutorialType == LIB_TUTORIAL_TYPE_UI_INFO_BOX then 
-		d("<LibTutorial> Missing data or wrong tutorial type.")
+		chatOutputTouser("Missing data or wrong tutorial type.", true)
 	return end
 
 	local anchorPoint, anchorTargetCtrlStr, relativePoint, offsetX, offsetY
@@ -191,7 +215,7 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 	local anchorTargetCtrl = GetControl(anchorTargetCtrlStr)
 
 	if not anchorTargetCtrl or anchorTargetCtrl:IsHidden() then
-		d("<LibTutorial> anchorTargetCtrl doesn't exist or is not visible.")
+		chatOutputTouser("anchorTargetCtrl doesn't exist or is not visible.", true)
 	return end
 
 	local tutorialCtrl = LibTutorial_TutorialDialog
@@ -322,7 +346,7 @@ local optionsTable = {
 -----
 
 
-local function OnLoad(e, addOnName)
+local function onAddOnLoaded(_, addOnName)
 	if addOnName ~= libName then return end
 
 	--Preparation for a tutorial type "plugin system": Add all tut handlers to a table which could be added to via e.g.
@@ -352,6 +376,6 @@ local function OnLoad(e, addOnName)
 		LAM:RegisterOptionControls(addOnName, optionsTable)
 	end
 
-	EVENT_MANAGER:UnregisterForEvent(libName, EVENT_ADD_ON_LOADED)
+	EM:UnregisterForEvent(libName, EVENT_ADD_ON_LOADED)
 end
-EVENT_MANAGER:RegisterForEvent(libName, EVENT_ADD_ON_LOADED, OnLoad)
+EM:RegisterForEvent(libName, EVENT_ADD_ON_LOADED, onAddOnLoaded)
