@@ -1,0 +1,2 @@
+Current Issues/Points to Examine:
+    - You can swap to another AddOn's LAM panel and the tutorial won't disappear. Due to validation it won't show the next one though. Could be acceptable?
