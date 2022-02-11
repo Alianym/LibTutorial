@@ -4,8 +4,8 @@
 ## Version: 1.10
 ## AddOnVersion: 000110
 ## IsLibrary: true
-## APIVersion: 101032
-## OptionalDependsOn: LibAddonMenu-2.0
+## APIVersion: 101032 101033
+## OptionalDependsOn: LibAddonMenu-2.0>=32
 
 ;Tutorial Types
 
