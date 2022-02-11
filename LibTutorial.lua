@@ -1,26 +1,72 @@
+-----
+--Documentation
+-----
+--LibTutorial
+--An ESO AddOn library for creating Tutorial notifications
+--Version: 1.10
+--Author: Alianym
+
+
+-----
+--TODOs
+-----
 --Set up a Must Implement (SetTutorialSeen)
 
+
+-----
+--Local variables
+-----
+
 --local ref. variables for performance gain on re-used _G table variables
+local tos = tostring
+local zostrfor = zo_strformat
+
 local TUTSYS = TUTORIAL_SYSTEM
 
+
 -----
---Initialize
+--Local functions
 -----
 
-LibTutorialSetup = {}
+
+-----
+--Classes
+-----
+
+--Class of library
 local LibTutorial = ZO_Object:Subclass()
 
-function LibTutorialSetup.New(tutorialArray)
-	local libTutorial = ZO_Object:New(LibTutorial)
-	libTutorial:Initialize(tutorialArray)
-	return libTutorial
+
+-----
+--Library LibTutorial object creation
+-----
+
+--Library global setup table
+local libTutSetup = {
+	name 	= 	"LibTutorial",
+	author  =   "Alianym",
+	version = 	"1.10"
+}
+LibTutorialSetup = libTutSetup
+local libName = libTutSetup.name
+
+--Library object creation function. Use this to create a new instance of the LibTutorial class for your addon.
+--Returns: objectTable LibTutorialObject
+function libTutSetup.New(tutorialArray)
+	local libTutorialObject = ZO_Object:New(LibTutorial)
+	libTutorialObject:Initialize(tutorialArray)
+	return libTutorialObject
 end
 
-function LibTutorial:Initialize(tutorialArray)
-	self.highlightCtrls = {}
-	self:RegisterTutorials(tutorialArray)
 
+-----
+--Initialize class
+-----
+function LibTutorial:Initialize(tutorialArray)
 	local obj = self
+	obj.highlightCtrls = {}
+	obj:RegisterTutorials(tutorialArray)
+
 	function LibTutorial_HudInfo:SetTutorialSeen(tutorialIndex)
 		obj:SetTutorialSeen(tutorialIndex)
 	end
@@ -33,7 +79,7 @@ function LibTutorial:Initialize(tutorialArray)
 end
 
 function LibTutorial:SetTutorialSeen(tutorialIndex)
-	--Should Override
+	--Should be overriden in subclasses
 end
 
 function LibTutorial:RegisterTutorials(tutorialArray)
@@ -49,13 +95,13 @@ function LibTutorial:RegisterTutorials(tutorialArray)
 end
 
 function LibTutorial:DisplayTutorial(tutorialIndex)
-	local tutorialIndex = HashString(tutorialIndex)
+	local tutorialIndexHashed = HashString(tutorialIndex)
 
-	if not self.tutorials[tutorialIndex] then 
-		CHAT_ROUTER:AddDebugMessage("<LibTutorial> No tutorialIndex found.")
+	if not self.tutorials[tutorialIndexHashed] then
+		d("<LibTutorial> No tutorialIndex found: " ..tos(tutorialIndex))
 	return end
 
-	local tutorialType = self:GetLibTutorialType(tutorialIndex)
+	local tutorialType = self:GetLibTutorialType(tutorialIndexHashed)
 
 	if tutorialType == LIB_TUTORIAL_TYPE_UI_INFO_BOX then
 		LibTutorial_TutorialDialog:ClearAnchors()
@@ -63,9 +109,9 @@ function LibTutorial:DisplayTutorial(tutorialIndex)
 	end
 
 	if TUTSYS.tutorialHandlers[tutorialType] then
-		local priority = self:GetLibTutorialDisplayPriority(tutorialIndex)
-		local title, desc = self:GetLibTutorialInfo(tutorialIndex)
-		TUTSYS.tutorialHandlers[tutorialType]:OnDisplayTutorial(tutorialIndex, priority, title, desc)
+		local priority = self:GetLibTutorialDisplayPriority(tutorialIndexHashed)
+		local title, desc = self:GetLibTutorialInfo(tutorialIndexHashed)
+		TUTSYS.tutorialHandlers[tutorialType]:OnDisplayTutorial(tutorialIndexHashed, priority, title, desc, nil)
 	end
 end
 
@@ -78,8 +124,9 @@ function LibTutorial:GetLibTutorialType(tutorialIndex)
 end
 
 function LibTutorial:GetLibTutorialInfo(tutorialIndex)
-	local title = self.tutorials[tutorialIndex].title
-	local text = self.tutorials[tutorialIndex].text
+	local tutsData = self.tutorials[tutorialIndex]
+	local title = tutsData.title
+	local text = tutsData.text
 
 	return title, text
 end
@@ -102,7 +149,7 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 	local sequenceOptions = tutorialSteps.options
 
 	if nextTutorialStepIndex and nextTutorialStepIndex > #tutorialSteps then
-		CHAT_ROUTER:AddDebugMessage("<LibTutorial> Tutorial Sequence Finished.")
+		d("<LibTutorial> Tutorial Sequence Finished.")
 		return
 	elseif nextTutorialStepIndex then
 		tutorial = tutorialSteps[nextTutorialStepIndex]
@@ -111,31 +158,32 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 		nextTutorialStepIndex = 1
 		tutorial = tutorialSteps[1]
 		currentStepId = HashString(tutorial.id)
-		CHAT_ROUTER:AddDebugMessage("<LibTutorial> Tutorial Sequence Started.")
+		d("<LibTutorial> Tutorial Sequence Started.")
 	end
 
 	if not tutorial then 
-		CHAT_ROUTER:AddDebugMessage("<LibTutorial> No tutorialSteps found.")
+		d("<LibTutorial> No tutorialSteps found.")
 	return end
 
 	local tutorialType = sequenceOptions.tutorialType or LIB_TUTORIAL_TYPE_UI_INFO_BOX
 	local anchorToControlData = tutorial.anchorToControlData
 
 	if not anchorToControlData or not tutorialType == LIB_TUTORIAL_TYPE_UI_INFO_BOX then 
-		CHAT_ROUTER:AddDebugMessage("<LibTutorial> Missing data or wrong tutorial type.")
+		d("<LibTutorial> Missing data or wrong tutorial type.")
 	return end
 
 	local anchorPoint, anchorTargetCtrlStr, relativePoint, offsetX, offsetY
-	if type(anchorToControlData) == "table" then 
+	local anchorToDataType = type(anchorToControlData)
+	if anchorToDataType == "table" then
 		anchorPoint, anchorTargetCtrlStr, relativePoint, offsetX, offsetY = unpack(anchorToControlData)
-	elseif type(anchorToControlData) == "string" then
+	elseif anchorToDataType == "string" then
 		anchorPoint, anchorTargetCtrlStr, relativePoint, offsetX, offsetY = LEFT, anchorToControlData, RIGHT, 100
 	end
 
 	local anchorTargetCtrl = GetControl(anchorTargetCtrlStr)
 
 	if not anchorTargetCtrl or anchorTargetCtrl:IsHidden() then
-		CHAT_ROUTER:AddDebugMessage("<LibTutorial> anchorTargetCtrl doesn't exist or is not visible.") 
+		d("<LibTutorial> anchorTargetCtrl doesn't exist or is not visible.")
 	return end
 
 	local tutorialCtrl = LibTutorial_TutorialDialog
@@ -144,10 +192,11 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 
 	local anchorTargetCtrlX, anchorTargetCtrlY = anchorTargetCtrl:GetDimensions()
 
-	local backdropCtrl = self.highlightCtrls[anchorTargetCtrlStr.."Backdrop"]
+	local backdropName = anchorTargetCtrlStr.."Backdrop"
+	local backdropCtrl = self.highlightCtrls[backdropName]
 	if not backdropCtrl then
-		backdropCtrl = CreateControl(anchorTargetCtrlStr.."Backdrop", anchorTargetCtrl, CT_BACKDROP)
-		self.highlightCtrls[anchorTargetCtrlStr.."Backdrop"] = backdropCtrl
+		backdropCtrl = CreateControl(backdropName, anchorTargetCtrl, CT_BACKDROP)
+		self.highlightCtrls[backdropName] = backdropCtrl
 
 		local r, g, b = ZO_HIGHLIGHT_TEXT:UnpackRGB()
 		backdropCtrl:SetEdgeColor(r, g, b, 1)
@@ -158,12 +207,21 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 	else
 		backdropCtrl:SetHidden(false)
 	end
+	local tutTitle = tutorial.title
+	local title = sequenceOptions.showStepNumInTitle and zostrfor("<<1>> <<2>>/<<3>>", tutTitle, nextTutorialStepIndex, #tutorialSteps) or tutTitle
 
-	local title = sequenceOptions.showStepNumInTitle and zo_strformat("<<1>> <<2>>/<<3>>", tutorial.title, nextTutorialStepIndex, #tutorialSteps) or tutorial.title
+	local tutorialDetails = {
+		tutSteps = tutorialSteps,
+		tutObj = self,
+		nextCustomCallback = tutorial.nextCustomCallback,
+		exitCustomCallback = tutorial.exitCustomCallback,
+		backdropCtrl = backdropCtrl,
+		title = title,
+		desc = tutorial.text,
+		nextTutorialStepIndex = nextTutorialStepIndex + 1
+	}
 
-	local tutorialDetails = {tutSteps = tutorialSteps, tutObj = self, nextCustomCallback = tutorial.nextCustomCallback, exitCustomCallback = tutorial.exitCustomCallback, backdropCtrl = backdropCtrl, title = title, desc = tutorial.text, nextTutorialStepIndex = nextTutorialStepIndex + 1}
-
-	TUTSYS.tutorialHandlers[tutorialType]:OnDisplayTutorial(currentStepId, _, _, _, tutorialDetails)
+	TUTSYS.tutorialHandlers[tutorialType]:OnDisplayTutorial(currentStepId, nil, nil, nil, tutorialDetails)
 end
 
 -----
@@ -172,10 +230,10 @@ end
 
 local panelData = {
 	type = "panel",
-	name = 			"LibTutorial",
-	displayName = 	"Lib Tutorial",
-	author = 		"Alianym",
-	version = 		"1.10",
+	name = 			libName,
+	displayName = 	libName,
+	author = 		libTutSetup.author,
+	version = 		libTutSetup.version,
 	registerForDefaults = true,
 }
 
@@ -241,7 +299,7 @@ local optionsTable = {
 -----
 
 local function OnLoad(e, addOnName)
-	if addOnName ~= "LibTutorial" then return end
+	if addOnName ~= libName then return end
 
 	TUTSYS:AddTutorialHandler(LibTutorial_HudInfo:New(ZO_Tutorial))
 	TUTSYS:AddTutorialHandler(LibTutorial_BriefHud:New(ZO_Tutorial))
@@ -253,6 +311,6 @@ local function OnLoad(e, addOnName)
 		LAM:RegisterOptionControls(addOnName, optionsTable)
 	end
 
-	EVENT_MANAGER:UnregisterForEvent("LibTutorial", EVENT_ADD_ON_LOADED) 
+	EVENT_MANAGER:UnregisterForEvent(libName, EVENT_ADD_ON_LOADED)
 end
-EVENT_MANAGER:RegisterForEvent("LibTutorial", EVENT_ADD_ON_LOADED, OnLoad)
+EVENT_MANAGER:RegisterForEvent(libName, EVENT_ADD_ON_LOADED, OnLoad)

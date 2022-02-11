@@ -94,20 +94,21 @@ local tutorialStepsExample = {
 }
 
 --Setup
-LIB_TUTORIAL_EXAMPLE = LibTutorialSetup.New(tutorialExampleList)
-function LIB_TUTORIAL_EXAMPLE:SetTutorialSeen(tutorialIndex)
+local libTutExample = LibTutorialSetup.New(tutorialExampleList)
+LIB_TUTORIAL_EXAMPLE = libTutExample
+function libTutExample:SetTutorialSeen(tutorialIndex)
 	CHAT_ROUTER:AddDebugMessage("Tutorial Seen") --Replace this with SavedVar updates or however/if you want to track if a Tutorial has been seen.
 end
 
 --Example Slash Command + Function
 local function DisplayTutorialExample(tutorialIndex)
-	LIB_TUTORIAL_EXAMPLE:DisplayTutorial(tutorialIndex) --This is the main function you'd use to display your tutorial.
+	libTutExample:DisplayTutorial(tutorialIndex) --This is the main function you'd use to display your tutorial.
 end
 SLASH_COMMANDS["/libtutex"] = DisplayTutorialExample --E.G. Usage: /libtuteex hudinfo
 
 --Example Slash Command + Function
-local function DisplayTutorialExample()
+local function DisplayTutorialExampleSequence()
 	local tutorialSteps = tutorialStepsExample
-	LIB_TUTORIAL_EXAMPLE:StartTutorialSequence(tutorialSteps) --This is the main function you'd use to display a tutorial route.
+	libTutExample:StartTutorialSequence(tutorialSteps) --This is the main function you'd use to display a tutorial route.
 end
-SLASH_COMMANDS["/libtutlamseq"] = DisplayTutorialExample --E.G. Usage: /libtuteex hudinfo
+SLASH_COMMANDS["/libtutlamseq"] = DisplayTutorialExampleSequence --E.G. Usage: /libtuteex hudinfo
