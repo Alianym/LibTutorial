@@ -47,7 +47,7 @@ local TUTSYS = TUTORIAL_SYSTEM
 
 --Library locals
 local libName = libTutSetup.name
-local chatErrorColorPrefix = "|cFF0000"
+local chatErrorColorPrefix = "|cFF0000[ERROR]"
 local chatColorSuffix = "|r"
 local chatLibPrefix = "<" .. libName ..">"
 
@@ -55,7 +55,7 @@ local chatLibPrefix = "<" .. libName ..">"
 --Local functions
 -----
 
-local function chatOutputTouser(msgText, isError)
+local function chatOutputToUser(msgText, isError)
 	if not msgText then return end
 	isError = isError or false
 	msgText = (isError and (chatErrorColorPrefix .. msgText .. chatColorSuffix)) or msgText
@@ -129,7 +129,7 @@ function LibTutorial:DisplayTutorial(tutorialIndex)
 	local tutorialIndexHashed = HashString(tutorialIndex)
 
 	if not self.tutorials[tutorialIndexHashed] then
-		chatOutputTouser("No tutorialIndex found: " ..tos(tutorialIndex), true)
+		chatOutputToUser("No tutorialIndex found: " ..tos(tutorialIndex), true)
 		return
 	end
 
@@ -181,7 +181,7 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 	local sequenceOptions = tutorialSteps.options
 
 	if nextTutorialStepIndex and nextTutorialStepIndex > #tutorialSteps then
-		chatOutputTouser("Tutorial Sequence Finished.")
+		chatOutputToUser("Tutorial Sequence Finished.")
 		return
 	elseif nextTutorialStepIndex then
 		tutorial = tutorialSteps[nextTutorialStepIndex]
@@ -190,18 +190,18 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 		nextTutorialStepIndex = 1
 		tutorial = tutorialSteps[1]
 		currentStepId = HashString(tutorial.id)
-		chatOutputTouser("Tutorial Sequence Started.")
+		chatOutputToUser("Tutorial Sequence Started.")
 	end
 
 	if not tutorial then 
-		chatOutputTouser("No tutorialSteps found.", true)
+		chatOutputToUser("No tutorialSteps found.", true)
 	return end
 
 	local tutorialType = sequenceOptions.tutorialType or LIB_TUTORIAL_TYPE_UI_INFO_BOX
 	local anchorToControlData = tutorial.anchorToControlData
 
 	if not anchorToControlData or not tutorialType == LIB_TUTORIAL_TYPE_UI_INFO_BOX then 
-		chatOutputTouser("Missing data or wrong tutorial type.", true)
+		chatOutputToUser("Missing data or wrong tutorial type.", true)
 	return end
 
 	local anchorPoint, anchorTargetCtrlStr, relativePoint, offsetX, offsetY
@@ -215,7 +215,7 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 	local anchorTargetCtrl = GetControl(anchorTargetCtrlStr)
 
 	if not anchorTargetCtrl or anchorTargetCtrl:IsHidden() then
-		chatOutputTouser("anchorTargetCtrl doesn't exist or is not visible.", true)
+		chatOutputToUser("anchorTargetCtrl doesn't exist or is not visible.", true)
 	return end
 
 	local tutorialCtrl = LibTutorial_TutorialDialog
