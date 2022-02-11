@@ -233,6 +233,19 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 end
 
 -----
+--Plugin system
+-----
+--Load an external Tutorial Type (plugin system)
+function LibTutorial:AddExtenralTutorialType(newTutorialTypeClass, newTutorialTypeControl)
+	assert(newTutorialTypeClass ~= nil and newTutorialTypeControl ~= nil, "Tutorial Type Class and/or Tutorial Type Control unknown!")
+	local tutorialHandlers = libTutSetup.tutorialHandlers
+	assert(tutorialHandlers[newTutorialTypeClass] == nil, "Tutorial Type Class already registered!")
+
+	tutorialHandlers[newTutorialTypeClass] = newTutorialTypeControl
+	addTutorialHandler(newTutorialTypeClass, newTutorialTypeControl)
+end
+
+-----
 --LAM Panel
 -----
 
@@ -313,14 +326,14 @@ local function OnLoad(e, addOnName)
 	if addOnName ~= libName then return end
 
 	--Preparation for a tutorial type "plugin system": Add all tut handlers to a table which could be added to via e.g.
-	--LibTutorialSetup:AddTutorialType from external plugin files
+	--LibTutorialSetup:AddExtenralTutorialType from external plugin files
 	local tutorialHandlersToLoad = {
 		[LibTutorial_HudInfo] = 	zoTutorialCtrl,
 		[LibTutorial_BriefHud] = 	zoTutorialCtrl,
 		[LibTutorial_UiInfoBox] = 	zoTutorialCtrl,
 	}
 	--todo: Other plugins will need an # DependsOn: LibTutorial>=<versionWhereThePLuginSystemWasAdded> and then need to
-	--register their new Tutorial type LibTutorial_<newType> glbal via a function <theirLibTutorialSetup.NewObject>:AddTutorialType(LibTutorial_<newType>, LibTutorial_<control>)
+	--register their new Tutorial type LibTutorial_<newType> glbal via a function <theirLibTutorialSetup.NewObject>:AddExtenralTutorialType(LibTutorial_<newType>, LibTutorial_<control>)
 	--It will be added to the table libTutSetup.tutorialHandlers then and update it + load the tutorial via function
 	--addTutorialHandler(tutType, tutCtrl) so it can be used after that within the library
 	--Maybe any LAM settings menu needs an update than OR needs to load at EVENT_PLAYER_ACTIVATED once (unregister the event in this lib again) then to show all plugin loaded

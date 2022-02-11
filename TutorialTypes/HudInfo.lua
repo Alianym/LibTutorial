@@ -62,7 +62,7 @@ function LibTutorial_HudInfo:DisplayTutorial(tutorialIndex, title, desc)
 		self.tutorialAnimation = self.tutorialAnimationKeyboard
 	end
 
-	local title = title or self.queueData[tutorialIndex].title
+	title = title or self.queueData[tutorialIndex].title
 	local description = desc or self.queueData[tutorialIndex].desc
 	local helpCategoryIndex, helpIndex = nil --GetTutorialLinkedHelpInfo(tutorialIndex)
 	local hasHelp = helpCategoryIndex ~= nil and helpIndex ~= nil

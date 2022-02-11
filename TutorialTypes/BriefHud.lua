@@ -9,7 +9,7 @@ function LibTutorial_BriefHud:Initialize(parent)
     local function UpdateDescription()
         local tutorialIndex = self:GetCurrentlyDisplayedTutorialIndex()
         if tutorialIndex then
-            local title, description = GetTutorialInfo(tutorialIndex) --Grab the Gamepad/Keyboard binding
+            local _, description = GetTutorialInfo(tutorialIndex) --Grab the Gamepad/Keyboard binding
             self.tutorial:SetText(description)
         end
     end
@@ -69,10 +69,8 @@ function LibTutorial_BriefHud:SetTutorialSeen(tutorialIndex)
 end
 
 function LibTutorial_BriefHud:DisplayTutorial(tutorialIndex, title, desc)
-	local title, description = title, desc
-
 	self:SetTutorialSeen(tutorialIndex)
-	self.tutorial:SetText(description)
+	self.tutorial:SetText(desc)
 	self.tutorialAnimation:PlayBackward()
     self:SetCurrentlyDisplayedTutorialIndex(tutorialIndex)
 
