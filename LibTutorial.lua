@@ -1,5 +1,8 @@
 --Set up a Must Implement (SetTutorialSeen)
 
+--local ref. variables for performance gain on re-used _G table variables
+local TUTSYS = TUTORIAL_SYSTEM
+
 -----
 --Initialize
 -----
@@ -59,10 +62,10 @@ function LibTutorial:DisplayTutorial(tutorialIndex)
 		LibTutorial_TutorialDialog:SetAnchor(CENTER, GuiRoot)
 	end
 
-	if TUTORIAL_SYSTEM.tutorialHandlers[tutorialType] then
+	if TUTSYS.tutorialHandlers[tutorialType] then
 		local priority = self:GetLibTutorialDisplayPriority(tutorialIndex)
 		local title, desc = self:GetLibTutorialInfo(tutorialIndex)
-		TUTORIAL_SYSTEM.tutorialHandlers[tutorialType]:OnDisplayTutorial(tutorialIndex, priority, title, desc)
+		TUTSYS.tutorialHandlers[tutorialType]:OnDisplayTutorial(tutorialIndex, priority, title, desc)
 	end
 end
 
@@ -160,7 +163,7 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 
 	local tutorialDetails = {tutSteps = tutorialSteps, tutObj = self, nextCustomCallback = tutorial.nextCustomCallback, exitCustomCallback = tutorial.exitCustomCallback, backdropCtrl = backdropCtrl, title = title, desc = tutorial.text, nextTutorialStepIndex = nextTutorialStepIndex + 1}
 
-	TUTORIAL_SYSTEM.tutorialHandlers[tutorialType]:OnDisplayTutorial(currentStepId, _, _, _, tutorialDetails)
+	TUTSYS.tutorialHandlers[tutorialType]:OnDisplayTutorial(currentStepId, _, _, _, tutorialDetails)
 end
 
 -----
@@ -178,27 +181,27 @@ local panelData = {
 
 local checkboxVal = false
 local optionsTable = {
-	[1] = {
+	{
 		type = "header",
 		name = "Example Header Name",
 		width = "full",
 		reference = "LibTutorialHeaderCtrl",
 	},
-	[2] = {
+	{
 		type = "description",
 		title = "Example Description Title",
 		text = "Example Description Text",
 		width = "full",
 		reference = "LibTutorialDescriptionCtrl",
 	},
-	[3] = {
+	{
 		type = "divider",
 		width = "full",
 		height = 10, -- (optional)
 		alpha = 0.25, -- (optional)
 		reference = "LibTutorialDividerCtrl",
 	},
-	[4] = {
+	{
 		type = "checkbox",
 		name = "Example Checkbox Name (1)",
 		tooltip = "Example Checkbox Tooltip",
@@ -208,7 +211,7 @@ local optionsTable = {
 		default = false,
 		--reference = "LibTutorialCheckBoxCtrl",
 	},
-	[5] = {
+	{
 		type = "checkbox",
 		name = "Example Checkbox Name (2)",
 		tooltip = "Example Checkbox Tooltip",
@@ -218,7 +221,7 @@ local optionsTable = {
 		default = false,
 		reference = "LibTutorialCheckBoxCtrl",
 	},
-	[6] = {
+	{
 		type = "editbox",
 		name = "Example Editbox Name",
 		getFunc = function() return  end,
@@ -240,9 +243,9 @@ local optionsTable = {
 local function OnLoad(e, addOnName)
 	if addOnName ~= "LibTutorial" then return end
 
-	TUTORIAL_SYSTEM:AddTutorialHandler(LibTutorial_HudInfo:New(ZO_Tutorial))
-	TUTORIAL_SYSTEM:AddTutorialHandler(LibTutorial_BriefHud:New(ZO_Tutorial))
-	TUTORIAL_SYSTEM:AddTutorialHandler(LibTutorial_UiInfoBox:New(ZO_Tutorial))
+	TUTSYS:AddTutorialHandler(LibTutorial_HudInfo:New(ZO_Tutorial))
+	TUTSYS:AddTutorialHandler(LibTutorial_BriefHud:New(ZO_Tutorial))
+	TUTSYS:AddTutorialHandler(LibTutorial_UiInfoBox:New(ZO_Tutorial))
 
 	if LibAddonMenu2 then
 		local LAM = LibAddonMenu2
