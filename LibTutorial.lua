@@ -116,7 +116,7 @@ function LibTutorial:SetTutorialSeen(tutorialIndex)
 end
 
 function LibTutorial:RegisterTutorials(tutorialArray)
-	if self.tutorials then return end
+	if self.tutorials or not tutorialArray then return end
 	local newTutorialArray = {}
 
 	for id, values in pairs(tutorialArray) do
@@ -263,6 +263,7 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 	local tutorialDetails = {
 		tutSteps = tutorialSteps,
 		tutObj = self,
+		iniCustomCallback = tutorial.iniCustomCallback,
 		nextCustomCallback = tutorial.nextCustomCallback,
 		exitCustomCallback = tutorial.exitCustomCallback,
 		backdropCtrl = backdropCtrl,
@@ -463,6 +464,7 @@ local function onAddOnLoaded(_, addOnName)
 	end
 
 	LibTutDemo.DemoTutStepsExampleData()
+	LibTutFCOISDemo.DemoTutFCOISStepsExampleData()
 
 	EM:UnregisterForEvent(libName, EVENT_ADD_ON_LOADED)
 end

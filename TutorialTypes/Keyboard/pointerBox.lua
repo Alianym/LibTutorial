@@ -159,6 +159,10 @@ end
 function LibTutorial_PointerBox:OnDisplayTutorial(tutorialIndex, priority, title, desc, tutorialType, tutorialDetails)
 	 if tutorialIndex ~= self:GetCurrentlyDisplayedTutorialIndex() then
 		if self:CanShowTutorial() then
+			if tutorialDetails and tutorialDetails.iniCustomCallback then
+				tutorialDetails.iniCustomCallback()
+			end
+
 			self:DisplayTutorial(tutorialIndex, title, desc, tutorialType, tutorialDetails)
 		end
 	end
