@@ -1,2 +1,4 @@
-Current Issues/Points to Examine:
+New With Pointer Box:
     - You can swap to another AddOn's LAM panel and the tutorial won't disappear. Due to validation it won't show the next one though. Could be acceptable?
+    - A PointerBox tutorial that isn't linked to a Fragment won't disappear until force-closed and will not allow new tutorials to disappear
+        - (Enforce Fragment linking?)

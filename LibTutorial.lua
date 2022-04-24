@@ -106,6 +106,9 @@ function LibTutorial:Initialize(tutorialArray)
 	function LibTutorial_UiInfoBox:SetTutorialSeen(tutorialIndex)
 		obj:SetTutorialSeen(tutorialIndex)
 	end
+	function LibTutorial_PointerBox:SetTutorialSeen(tutorialIndex)
+		obj:SetTutorialSeen(tutorialIndex)
+	end
 end
 
 function LibTutorial:SetTutorialSeen(tutorialIndex)
@@ -125,7 +128,33 @@ function LibTutorial:RegisterTutorials(tutorialArray)
 	self.tutorials = newTutorialArray
 end
 
-function LibTutorial:DisplayTutorial(tutorialIndex)
+local function LibTutorial_PointerBoxSetup(tutorialType, anchorToControlData, fragment)
+	if(not anchorToControlData) or tutorialType ~= LIB_TUTORIAL_TYPE_POINTER_BOX then 
+		chatOutputToUser("Missing data or wrong tutorial type.", true)
+	return end
+
+	local anchorPoint, anchorTargetCtrlStr, relativePoint, offsetX, offsetY
+	local anchorToDataType = type(anchorToControlData)
+	if anchorToDataType == "table" then
+		anchorPoint, anchorTargetCtrlStr, relativePoint, offsetX, offsetY = unpack(anchorToControlData)
+	elseif anchorToDataType == "string" then
+		anchorPoint, anchorTargetCtrlStr, relativePoint, offsetX, offsetY = LEFT, anchorToControlData, RIGHT, 0
+	end
+
+	local anchorTargetCtrl = GetControl(anchorTargetCtrlStr)
+
+	if (not anchorTargetCtrl) or anchorTargetCtrl:IsHidden() then
+		chatOutputToUser("anchorTargetCtrl doesn't exist or is not visible.", true)
+	return end
+
+	local fragment = fragment or nil
+	local tutorialAnchor = ZO_Anchor:New(anchorPoint, anchorTargetCtrl, relativePoint, offsetX, offsetY)
+	TUTSYS.tutorialHandlers[tutorialType]:RegisterTriggerLayoutInfo(tutorialType, GuiRoot, fragment, tutorialAnchor, optionalParams)
+
+	return true, anchorTargetCtrlStr, anchorTargetCtrl
+end
+
+function LibTutorial:DisplayTutorial(tutorialIndex, anchorToControlData, fragment)
 	local tutorialIndexHashed = HashString(tutorialIndex)
 
 	if not self.tutorials[tutorialIndexHashed] then
@@ -135,15 +164,21 @@ function LibTutorial:DisplayTutorial(tutorialIndex)
 
 	local tutorialType = self:GetLibTutorialType(tutorialIndexHashed)
 
-	if tutorialType == LIB_TUTORIAL_TYPE_UI_INFO_BOX then
-		LibTutorial_TutorialDialog:ClearAnchors()
-		LibTutorial_TutorialDialog:SetAnchor(CENTER, GuiRoot)
-	end
-
 	if TUTSYS.tutorialHandlers[tutorialType] then
+		--Handles Pointer Box when not in a sequence
+		if tutorialType == LIB_TUTORIAL_TYPE_POINTER_BOX then
+			local tutsData = self.tutorials[tutorialIndexHashed]
+
+			local fragment = tutsData.fragment
+			local anchorToControlData = tutsData.anchorToControlData
+
+			if not LibTutorial_PointerBoxSetup(tutorialType, anchorToControlData, fragment) then 
+				return end
+		end
+
 		local priority = self:GetLibTutorialDisplayPriority(tutorialIndexHashed)
 		local title, desc = self:GetLibTutorialInfo(tutorialIndexHashed)
-		TUTSYS.tutorialHandlers[tutorialType]:OnDisplayTutorial(tutorialIndexHashed, priority, title, desc, nil)
+		TUTSYS.tutorialHandlers[tutorialType]:OnDisplayTutorial(tutorialIndexHashed, priority, title, desc, tutorialType)
 	end
 end
 
@@ -186,41 +221,23 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 	elseif nextTutorialStepIndex then
 		tutorial = tutorialSteps[nextTutorialStepIndex]
 		currentStepId = HashString(tutorial.id)
+		chatOutputToUser("Tutorial Sequence Continuing.")
 	else
 		nextTutorialStepIndex = 1
 		tutorial = tutorialSteps[1]
 		currentStepId = HashString(tutorial.id)
-		chatOutputToUser("Tutorial Sequence Started.")
+		chatOutputToUser("Tutorial Sequence Starting.")
 	end
 
 	if not tutorial then 
 		chatOutputToUser("No tutorialSteps found.", true)
 	return end
 
-	local tutorialType = sequenceOptions.tutorialType or LIB_TUTORIAL_TYPE_UI_INFO_BOX
+	local tutorialType = sequenceOptions.tutorialType or LIB_TUTORIAL_TYPE_POINTER_BOX
 	local anchorToControlData = tutorial.anchorToControlData
 
-	if not anchorToControlData or not tutorialType == LIB_TUTORIAL_TYPE_UI_INFO_BOX then 
-		chatOutputToUser("Missing data or wrong tutorial type.", true)
-	return end
-
-	local anchorPoint, anchorTargetCtrlStr, relativePoint, offsetX, offsetY
-	local anchorToDataType = type(anchorToControlData)
-	if anchorToDataType == "table" then
-		anchorPoint, anchorTargetCtrlStr, relativePoint, offsetX, offsetY = unpack(anchorToControlData)
-	elseif anchorToDataType == "string" then
-		anchorPoint, anchorTargetCtrlStr, relativePoint, offsetX, offsetY = LEFT, anchorToControlData, RIGHT, 100
-	end
-
-	local anchorTargetCtrl = GetControl(anchorTargetCtrlStr)
-
-	if not anchorTargetCtrl or anchorTargetCtrl:IsHidden() then
-		chatOutputToUser("anchorTargetCtrl doesn't exist or is not visible.", true)
-	return end
-
-	local tutorialCtrl = LibTutorial_TutorialDialog
-	tutorialCtrl:ClearAnchors()
-	tutorialCtrl:SetAnchor(anchorPoint or LEFT, anchorTargetCtrl, relativePoint, offsetX, offsetY)
+	local result, anchorTargetCtrlStr, anchorTargetCtrl = LibTutorial_PointerBoxSetup(tutorialType, anchorToControlData, tutorial.fragment)
+	if not result then return end
 
 	local anchorTargetCtrlX, anchorTargetCtrlY = anchorTargetCtrl:GetDimensions()
 
@@ -239,8 +256,9 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 	else
 		backdropCtrl:SetHidden(false)
 	end
+
 	local tutTitle = tutorial.title
-	local title = sequenceOptions.showStepNumInTitle and zostrfor("<<1>> <<2>>/<<3>>", tutTitle, nextTutorialStepIndex, #tutorialSteps) or tutTitle
+	local title = sequenceOptions.showStepNumInTitle and zostrfor("<<1>> (<<2>>/<<3>>)", tutTitle, nextTutorialStepIndex, #tutorialSteps) or tutTitle
 
 	local tutorialDetails = {
 		tutSteps = tutorialSteps,
@@ -253,14 +271,14 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 		nextTutorialStepIndex = nextTutorialStepIndex + 1
 	}
 
-	TUTSYS.tutorialHandlers[tutorialType]:OnDisplayTutorial(currentStepId, nil, nil, nil, tutorialDetails)
+	TUTSYS.tutorialHandlers[tutorialType]:OnDisplayTutorial(currentStepId, nil, nil, nil, tutorialType, tutorialDetails)
 end
 
 -----
 --Plugin system
 -----
 --Load an external Tutorial Type (plugin system)
-function LibTutorial:AddExtenralTutorialType(newTutorialTypeClass, newTutorialTypeControl)
+function LibTutorial:AddExternalTutorialType(newTutorialTypeClass, newTutorialTypeControl)
 	assert(newTutorialTypeClass ~= nil and newTutorialTypeControl ~= nil, "Tutorial Type Class and/or Tutorial Type Control unknown!")
 	local tutorialHandlers = libTutSetup.tutorialHandlers
 	assert(tutorialHandlers[newTutorialTypeClass] == nil, "Tutorial Type Class already registered!")
@@ -322,7 +340,7 @@ local optionsTable = {
 		setFunc = function(value) checkboxVal = value end,
 		width = "full",
 		default = false,
-		reference = "LibTutorialCheckBoxCtrl",
+		reference = "LibTutorialCheckBoxCtrl2",
 	},
 	{
 		type = "editbox",
@@ -338,6 +356,74 @@ local optionsTable = {
 		warning = "Example Editbox Warning.", -- or string id or function returning a string (optional)
 		reference = "LibTutorialEditBox" -- unique global reference to control (optional)
 	},
+	{
+		type = "checkbox",
+		name = "Example Checkbox Name (3)",
+		tooltip = "Example Checkbox Tooltip",
+		getFunc = function() return checkboxVal end,
+		setFunc = function(value) checkboxVal = value end,
+		width = "full",
+		default = false,
+		--reference = "LibTutorialCheckBoxCtrl",
+	},
+	{
+		type = "checkbox",
+		name = "Example Checkbox Name (4)",
+		tooltip = "Example Checkbox Tooltip",
+		getFunc = function() return checkboxVal end,
+		setFunc = function(value) checkboxVal = value end,
+		width = "full",
+		default = false,
+		reference = "LibTutorialCheckBoxCtrl4",
+	},
+	{
+		type = "editbox",
+		name = "Example Editbox Name",
+		getFunc = function() return  end,
+		setFunc = function(text)  end,
+		tooltip = "Example Editbox Tooltip (2)",
+		isMultiline = true, -- boolean (optional)
+		isExtraWide = true, -- boolean (optional)
+		maxChars = 3000, -- number (optional)
+		textType = TEXT_TYPE_ALL, -- number (optional) or function returning a number. Valid TextType numbers: TEXT_TYPE_ALL, TEXT_TYPE_ALPHABETIC, TEXT_TYPE_ALPHABETIC_NO_FULLWIDTH_LATIN, TEXT_TYPE_NUMERIC, TEXT_TYPE_NUMERIC_UNSIGNED_INT, TEXT_TYPE_PASSWORD
+		width = "full", -- or "half" (optional)
+		warning = "Example Editbox Warning.", -- or string id or function returning a string (optional)
+		reference = "LibTutorialEditBox2" -- unique global reference to control (optional)
+	},
+	{
+		type = "checkbox",
+		name = "Example Checkbox Name (5)",
+		tooltip = "Example Checkbox Tooltip",
+		getFunc = function() return checkboxVal end,
+		setFunc = function(value) checkboxVal = value end,
+		width = "full",
+		default = false,
+		--reference = "LibTutorialCheckBoxCtrl",
+	},
+	{
+		type = "checkbox",
+		name = "Example Checkbox Name (6)",
+		tooltip = "Example Checkbox Tooltip",
+		getFunc = function() return checkboxVal end,
+		setFunc = function(value) checkboxVal = value end,
+		width = "full",
+		default = false,
+		reference = "LibTutorialCheckBoxCtrl6",
+	},
+	{
+		type = "editbox",
+		name = "Example Editbox Name",
+		getFunc = function() return  end,
+		setFunc = function(text)  end,
+		tooltip = "Example Editbox Tooltip (3)",
+		isMultiline = true, -- boolean (optional)
+		isExtraWide = true, -- boolean (optional)
+		maxChars = 3000, -- number (optional)
+		textType = TEXT_TYPE_ALL, -- number (optional) or function returning a number. Valid TextType numbers: TEXT_TYPE_ALL, TEXT_TYPE_ALPHABETIC, TEXT_TYPE_ALPHABETIC_NO_FULLWIDTH_LATIN, TEXT_TYPE_NUMERIC, TEXT_TYPE_NUMERIC_UNSIGNED_INT, TEXT_TYPE_PASSWORD
+		width = "full", -- or "half" (optional)
+		warning = "Example Editbox Warning.", -- or string id or function returning a string (optional)
+		reference = "LibTutorialEditBox3" -- unique global reference to control (optional)
+	},
 }
 
 
@@ -350,14 +436,15 @@ local function onAddOnLoaded(_, addOnName)
 	if addOnName ~= libName then return end
 
 	--Preparation for a tutorial type "plugin system": Add all tut handlers to a table which could be added to via e.g.
-	--LibTutorialSetup:AddExtenralTutorialType from external plugin files
+	--LibTutorialSetup:AddExternalTutorialType from external plugin files
 	local tutorialHandlersToLoad = {
 		[LibTutorial_HudInfo] = 	zoTutorialCtrl,
 		[LibTutorial_BriefHud] = 	zoTutorialCtrl,
 		[LibTutorial_UiInfoBox] = 	zoTutorialCtrl,
+		[LibTutorial_PointerBox] =	zoTutorialCtrl,
 	}
-	--todo: Other plugins will need an # DependsOn: LibTutorial>=<versionWhereThePLuginSystemWasAdded> and then need to
-	--register their new Tutorial type LibTutorial_<newType> glbal via a function <theirLibTutorialSetup.NewObject>:AddExtenralTutorialType(LibTutorial_<newType>, LibTutorial_<control>)
+	--todo: Other plugins will need an # DependsOn: LibTutorial>=<versionWhereThePluginSystemWasAdded> and then need to
+	--register their new Tutorial type LibTutorial_<newType> glbal via a function <theirLibTutorialSetup.NewObject>:AddExternalTutorialType(LibTutorial_<newType>, LibTutorial_<control>)
 	--It will be added to the table libTutSetup.tutorialHandlers then and update it + load the tutorial via function
 	--addTutorialHandler(tutType, tutCtrl) so it can be used after that within the library
 	--Maybe any LAM settings menu needs an update than OR needs to load at EVENT_PLAYER_ACTIVATED once (unregister the event in this lib again) then to show all plugin loaded
@@ -369,12 +456,13 @@ local function onAddOnLoaded(_, addOnName)
 		addTutorialHandler(k, v)
 	end
 
-
 	if LibAddonMenu2 then
 		local LAM = LibAddonMenu2
 		LAM:RegisterAddonPanel(addOnName, panelData)
 		LAM:RegisterOptionControls(addOnName, optionsTable)
 	end
+
+	LibTutDemo.DemoTutStepsExampleData()
 
 	EM:UnregisterForEvent(libName, EVENT_ADD_ON_LOADED)
 end

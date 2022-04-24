@@ -4,7 +4,7 @@
 ## Version: 1.10
 ## AddOnVersion: 000110
 ## IsLibrary: true
-## APIVersion: 101032 101033
+## APIVersion: 101033 101034
 ## OptionalDependsOn: LibAddonMenu-2.0>=32
 
 ;Tutorial Types
@@ -13,6 +13,8 @@ TutorialTypes/BriefHud.lua
 TutorialTypes/HudInfo.lua
 TutorialTypes/UIInfoBox.lua
 TutorialTypes/UIInfoBox.xml
+TutorialTypes/Keyboard/PointerBox.lua
+TutorialTypes/Keyboard/PointerBox.xml
 
 ;Main
 LibTutorial.lua
