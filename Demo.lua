@@ -71,6 +71,15 @@ function LibTutDemo.DemoTutStepsExampleData()
 			anchorToControlData = {LEFT, "LibTutorialDescriptionCtrl", RIGHT, 0},	--(myPoint, anchorTargetControl, anchorControlsPoint, offsetX, offsetY)	
 			fragment = LAM:GetAddonSettingsFragment(),								--Fragment to which to attach (optional), if used, will hide with fragment
 
+			--Callback that triggers just -before- the tutorial is displayed
+			--Used here to open the SubMenu as the tutorial is displayed
+			iniCustomCallback = function()
+				local control = GetControl("LibTutorialDescriptionCtrl")
+				local scrollCtrl = LAM.currentAddonPanel:GetChild(1)
+
+				ZO_Scroll_ScrollControlIntoCentralView(scrollCtrl, control)
+			end,
+
 			--Callback that triggers when a user left-clicks on the tutorial popup
 			--Displaying the next tutorial in sequence is handled by LibTutorial, but you can do other stuff here if you want 
 				--(It will be called -before- the next tutorialStep is shown)
@@ -85,6 +94,11 @@ function LibTutDemo.DemoTutStepsExampleData()
 			text = "Test <LibTutorialCheckBoxCtrl> Text!",
 			anchorToControlData = "LibTutorialCheckBoxCtrl6",
 			fragment = LAM:GetAddonSettingsFragment(),
+
+			iniCustomCallback = function()
+				--
+			end,
+
 			--nextCustomCallback = function(nextTutStepId) end,
 			--exitCustomCallback = function(currTutStepId) end,
 		},
@@ -92,8 +106,13 @@ function LibTutDemo.DemoTutStepsExampleData()
 			id = "libtutpbthree",
 			title = "Test Tutorial Sequence",
 			text = "Test <LibTutorialHeaderCtrl> Text!",
-			anchorToControlData = "LibTutorialHeaderCtrl",
+			anchorToControlData = "LibTutorialEditBox2",
 			fragment = LAM:GetAddonSettingsFragment(),
+
+			iniCustomCallback = function()
+				--
+			end,
+
 			--nextCustomCallback = function(nextTutStepId) end,
 			--exitCustomCallback = function(currTutStepId) end,
 		},
@@ -103,6 +122,25 @@ function LibTutDemo.DemoTutStepsExampleData()
 			text = "Test <LibTutorialEditBox> Text!",
 			anchorToControlData = "LibTutorialEditBox3",
 			fragment = LAM:GetAddonSettingsFragment(),
+
+			iniCustomCallback = function()
+				--
+			end,
+
+			--nextCustomCallback = function(nextTutStepId) end,
+			--exitCustomCallback = function(currTutStepId) end,
+		},
+		[5] = {
+			id = "libtutpbfive",
+			title = "Test Tutorial Sequence",
+			text = "Test <LibTutorialEditBox> Text!",
+			anchorToControlData = "LibTutorialSubmenu1",
+			fragment = LAM:GetAddonSettingsFragment(),
+
+			iniCustomCallback = function()
+				--
+			end,
+
 			--nextCustomCallback = function(nextTutStepId) end,
 			--exitCustomCallback = function(currTutStepId) end,
 		},
@@ -114,6 +152,12 @@ local libTutExample = LibTutorialSetup.New(tutorialExampleList)
 LIB_TUTORIAL_EXAMPLE = libTutExample
 function libTutExample:SetTutorialSeen(tutorialIndex)
 	CHAT_ROUTER:AddDebugMessage("Tutorial Seen") --Replace this with SavedVar updates or however/if you want to track if a Tutorial has been seen.
+end
+
+--Example Tutorial Sequence Function
+function libTutExample:DisplayTutorialExampleSequence()
+	local tutorialSteps = tutorialStepsExample
+	libTutExample:StartTutorialSequence(tutorialSteps) --This is the main function you'd use to display a tutorial route.
 end
 
 --Example Slash Command + Function
@@ -128,10 +172,3 @@ local function DisplayTutorialPointerBoxExample()
 	libTutExample:DisplayTutorial("pointerbox")
 end
 SLASH_COMMANDS["/libtutpbsolo"] = DisplayTutorialPointerBoxExample
-
---Example Slash Command + Function
-local function DisplayTutorialExampleSequence()
-	local tutorialSteps = tutorialStepsExample
-	libTutExample:StartTutorialSequence(tutorialSteps) --This is the main function you'd use to display a tutorial route.
-end
-SLASH_COMMANDS["/libtutlamseq"] = DisplayTutorialExampleSequence

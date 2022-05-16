@@ -36,7 +36,7 @@ LIB_TUT_POINTER_BOXES = LibTut_PointerBoxManager:New()
 LibTutorial_PointerBox = ZO_TutorialHandlerBase:Subclass()
 
 function LibTutorial_PointerBox:Initialize(parent)
-	self.tutorial = CreateControlFromVirtual(parent:GetName(), parent, "ZO_PointerBoxTutorialTip", "LibTutorialPointerBoxTip")
+	self.tutorial = CreateControlFromVirtual(parent:GetName(), parent, "LibTut_PointerBoxTutorialTip", "LibTutorialPointerBoxTip")
 end
 
 do
@@ -159,8 +159,16 @@ end
 function LibTutorial_PointerBox:OnDisplayTutorial(tutorialIndex, priority, title, desc, tutorialType, tutorialDetails)
 	 if tutorialIndex ~= self:GetCurrentlyDisplayedTutorialIndex() then
 		if self:CanShowTutorial() then
-			if tutorialDetails and tutorialDetails.iniCustomCallback then
-				tutorialDetails.iniCustomCallback()
+			if tutorialDetails then
+				if tutorialDetails.iniCustomCallback then
+					tutorialDetails.iniCustomCallback()
+				end
+
+				if tutorialDetails.scrollToCtrl then
+					tutorialDetails.scrollToCtrl()
+				end
+
+				tutorialDetails.backdropCtrl:SetHidden(false)
 			end
 
 			self:DisplayTutorial(tutorialIndex, title, desc, tutorialType, tutorialDetails)

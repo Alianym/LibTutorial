@@ -10,5 +10,8 @@
 				</Texture>
 			</Controls>
 		</TopLevelControl>
+
+		<Label name="LibTut_PointerBoxTutorialTip" font="ZoFontGame" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL" hidden="true" tier="HIGH" virtual="true">
+		</Label>
 	</Controls>
 </GuiXml>

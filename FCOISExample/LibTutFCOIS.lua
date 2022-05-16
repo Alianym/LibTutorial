@@ -52,12 +52,35 @@ function LibTutFCOISDemo.DemoTutFCOISStepsExampleData()
 			end,
 
 			--Callback that triggers when a user right-clicks on the tutorial pointer box
-			exitCustomCallback = function(currTutStepId) end,
+			exitCustomCallback = function(nextTutStepId) 
+				local control = GetControl("LAMCombobox2")
+				LoopCallbackForSubMenu(control, false)
+			end,
 		},
 		[2] = {
 			id = "libtutfcoistwo",
 			title = "Test Tutorial Sequence",
 			text = "Test text for this tutorial at the second in sequence!",
+			anchorToControlData = "LAMCombobox5",
+			fragment = LAM:GetAddonSettingsFragment(),
+			iniCustomCallback = function() 
+				local control = GetControl("LAMCombobox5")
+				LoopCallbackForSubMenu(control, true)
+			end,
+			nextCustomCallback = function(nextTutStepId) 
+				local control = GetControl("LAMCombobox5")
+				LoopCallbackForSubMenu(control, false)
+			end,
+
+			exitCustomCallback = function(nextTutStepId) 
+				local control = GetControl("LAMCombobox5")
+				LoopCallbackForSubMenu(control, false)
+			end,
+		},
+		--[[[3] = {
+			id = "libtutfcoisthree",
+			title = "Test Tutorial Sequence",
+			text = "Test text for this tutorial at the third in sequence!",
 			anchorToControlData = "LAMCombobox11",
 			fragment = LAM:GetAddonSettingsFragment(),
 			iniCustomCallback = function() 
@@ -69,15 +92,6 @@ function LibTutFCOISDemo.DemoTutFCOISStepsExampleData()
 				LoopCallbackForSubMenu(control, false)
 			end,
 
-			--exitCustomCallback = function(currTutStepId) end,
-		},
-		--[[[3] = {
-			id = "libtutfcoisthree",
-			title = "Test Tutorial Sequence",
-			text = "Test text for this tutorial at the third in sequence!",
-			anchorToControlData = "",
-			fragment = LAM:GetAddonSettingsFragment(),
-			--nextCustomCallback = function(nextTutStepId) end,
 			--exitCustomCallback = function(currTutStepId) end,
 		},
 		[4] = {

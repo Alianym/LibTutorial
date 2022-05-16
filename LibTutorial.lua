@@ -27,7 +27,7 @@ local libTutSetup = {
 }
 --Library global variable
 LibTutorialSetup = libTutSetup
-
+local LAM
 
 -----
 --Local variables
@@ -239,6 +239,13 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 	local result, anchorTargetCtrlStr, anchorTargetCtrl = LibTutorial_PointerBoxSetup(tutorialType, anchorToControlData, tutorial.fragment)
 	if not result then return end
 
+	if tutorial.fragment == LAM:GetAddonSettingsFragment() then
+		tutorial.scrollToCtrl = function()
+			local scrollCtrl = LAM.currentAddonPanel:GetChild(1)
+			ZO_Scroll_ScrollControlIntoCentralView(scrollCtrl, anchorTargetCtrl)
+		end
+	end
+
 	local anchorTargetCtrlX, anchorTargetCtrlY = anchorTargetCtrl:GetDimensions()
 
 	local backdropName = anchorTargetCtrlStr.."Backdrop"
@@ -253,9 +260,10 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 		backdropCtrl:SetPixelRoundingEnabled(true)
 		backdropCtrl:SetAnchor(CENTER, anchorTargetCtrl, CENTER)
 		backdropCtrl:SetDimensions(anchorTargetCtrlX, anchorTargetCtrlY)
-	else
-		backdropCtrl:SetHidden(false)
+	--else
+		--backdropCtrl:SetHidden(false)
 	end
+	backdropCtrl:SetHidden(true)
 
 	local tutTitle = tutorial.title
 	local title = sequenceOptions.showStepNumInTitle and zostrfor("<<1>> (<<2>>/<<3>>)", tutTitle, nextTutorialStepIndex, #tutorialSteps) or tutTitle
@@ -266,6 +274,7 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 		iniCustomCallback = tutorial.iniCustomCallback,
 		nextCustomCallback = tutorial.nextCustomCallback,
 		exitCustomCallback = tutorial.exitCustomCallback,
+		scrollToCtrl = tutorial.scrollToCtrl,
 		backdropCtrl = backdropCtrl,
 		title = title,
 		desc = tutorial.text,
@@ -303,6 +312,19 @@ local panelData = {
 
 local checkboxVal = false
 local optionsTable = {
+	{
+		type = "button",
+		name = "Run LibTut Sequence", -- string id or function returning a string
+		func = function() LIB_TUTORIAL_EXAMPLE:DisplayTutorialExampleSequence() end,
+		tooltip = "Example Button Tooltip Text", -- string id or function returning a string (optional)
+		width = "half", -- or "half" (optional)
+		--disabled = function() return db.someBooleanSetting end, -- or boolean (optional)
+		--icon = "icon\\path.dds", -- (optional)
+		isDangerous = false, -- boolean, if set to true, the button text will be red and a confirmation dialog with the button label and warning text will show on click before the callback is executed (optional)
+		--warning = "Will need to reload the UI.", -- (optional)
+		--helpUrl = "https://www.esoui.com/portal.php?id=218&a=faq", -- a string URL or a function that returns the string URL (optional)
+		reference = "LibTutorialButtonCtrl", -- unique global reference to control (optional)
+	},
 	{
 		type = "header",
 		name = "Example Header Name",
@@ -345,7 +367,7 @@ local optionsTable = {
 	},
 	{
 		type = "editbox",
-		name = "Example Editbox Name",
+		name = "Example Editbox Name (1)",
 		getFunc = function() return  end,
 		setFunc = function(text)  end,
 		tooltip = "Example Editbox Tooltip",
@@ -379,10 +401,10 @@ local optionsTable = {
 	},
 	{
 		type = "editbox",
-		name = "Example Editbox Name",
+		name = "Example Editbox Name (2)",
 		getFunc = function() return  end,
 		setFunc = function(text)  end,
-		tooltip = "Example Editbox Tooltip (2)",
+		tooltip = "Example Editbox Tooltip",
 		isMultiline = true, -- boolean (optional)
 		isExtraWide = true, -- boolean (optional)
 		maxChars = 3000, -- number (optional)
@@ -413,10 +435,10 @@ local optionsTable = {
 	},
 	{
 		type = "editbox",
-		name = "Example Editbox Name",
+		name = "Example Editbox Name (3)",
 		getFunc = function() return  end,
 		setFunc = function(text)  end,
-		tooltip = "Example Editbox Tooltip (3)",
+		tooltip = "Example Editbox Tooltip",
 		isMultiline = true, -- boolean (optional)
 		isExtraWide = true, -- boolean (optional)
 		maxChars = 3000, -- number (optional)
@@ -424,6 +446,43 @@ local optionsTable = {
 		width = "full", -- or "half" (optional)
 		warning = "Example Editbox Warning.", -- or string id or function returning a string (optional)
 		reference = "LibTutorialEditBox3" -- unique global reference to control (optional)
+	},
+	{
+		type = "submenu",
+		name = "Example Submenu Name",
+		--icon = "path/to/my/icon.dds", -- or function returning a string (optional)
+		--iconTextureCoords = {left, right, top, bottom}, -- or function returning a table (optional)
+		tooltip = "Example Submenu Tooltip", -- or string id or function returning a string (optional)
+		controls = {
+			{
+				type = "checkbox",
+				name = "Example Checkbox Name (7)",
+				tooltip = "Example Checkbox Tooltip",
+				getFunc = function() return checkboxVal end,
+				setFunc = function(value) checkboxVal = value end,
+				width = "full",
+				default = false,
+				reference = "LibTutorialCheckBoxCtrl7",
+			},
+			{
+				type = "editbox",
+				name = "Example Editbox Name (4)",
+				getFunc = function() return  end,
+				setFunc = function(text)  end,
+				tooltip = "Example Editbox Tooltip",
+				isMultiline = true, -- boolean (optional)
+				isExtraWide = true, -- boolean (optional)
+				maxChars = 3000, -- number (optional)
+				textType = TEXT_TYPE_ALL, -- number (optional) or function returning a number. Valid TextType numbers: TEXT_TYPE_ALL, TEXT_TYPE_ALPHABETIC, TEXT_TYPE_ALPHABETIC_NO_FULLWIDTH_LATIN, TEXT_TYPE_NUMERIC, TEXT_TYPE_NUMERIC_UNSIGNED_INT, TEXT_TYPE_PASSWORD
+				width = "full", -- or "half" (optional)
+				warning = "Example Editbox Warning.", -- or string id or function returning a string (optional)
+				reference = "LibTutorialEditBox4" -- unique global reference to control (optional)
+			}, 
+		},-- used by LAM (optional)
+		--disabled = function() return db.someBooleanSetting end, -- or boolean (optional)
+		--disabledLabel = function() return db.someBooleanSetting end, -- or boolean (optional)
+		--helpUrl = "https://www.esoui.com/portal.php?id=218&a=faq", -- a string URL or a function that returns the string URL (optional)
+		reference = "LibTutorialSubmenu1" -- unique global reference to control (optional)
 	},
 }
 
@@ -458,7 +517,7 @@ local function onAddOnLoaded(_, addOnName)
 	end
 
 	if LibAddonMenu2 then
-		local LAM = LibAddonMenu2
+		LAM = LibAddonMenu2
 		LAM:RegisterAddonPanel(addOnName, panelData)
 		LAM:RegisterOptionControls(addOnName, optionsTable)
 	end
