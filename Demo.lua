@@ -8,6 +8,9 @@ ZO_CreateStringId("LIBTUTORIAL_EXAMPLE_TITLE_LONG", "Test Tutorial Expanded")
 ZO_CreateStringId("LIBTUTORIAL_EXAMPLE_TEXT_SHORT", "This is test tutorial text so you can see how this works.")
 ZO_CreateStringId("LIBTUTORIAL_EXAMPLE_TEXT_LONG", "This is some longer test tutorial text so you can see how this works with more text in the example.")
 
+----------
+--Simple Examples
+----------
 local tutorialExampleList = {
 	["hudbrief"] = {											--ID must be at least (string) 5 characters or > (number) 9999
 		title = "",												--(string) No title displayed nor needed for this Tutorial Type
@@ -55,6 +58,31 @@ local tutorialExampleList = {
 	},
 }
 
+----------
+--Tutorial Sequence Example
+----------
+
+local function LoopCallbackForSubMenu(control, requestOpen)
+	if not control then return end
+
+	while control:GetName() ~= "GuiRoot" and control do
+		if control.open ~= nil then
+			if control.disabled then return end
+			if control.open == requestOpen then 
+				return end
+
+			control.open = not control.open
+			if requestOpen then
+				control.animation:PlayFromStart()
+			else
+				control.animation:PlayFromEnd()
+			end
+		end
+
+		control = control:GetParent()
+	end
+end
+
 LibTutDemo = {}
 local tutorialStepsExample
 function LibTutDemo.DemoTutStepsExampleData()
@@ -75,15 +103,16 @@ function LibTutDemo.DemoTutStepsExampleData()
 			--Used here to open the SubMenu as the tutorial is displayed
 			iniCustomCallback = function()
 				local control = GetControl("LibTutorialDescriptionCtrl")
-				local scrollCtrl = LAM.currentAddonPanel:GetChild(1)
-
-				ZO_Scroll_ScrollControlIntoCentralView(scrollCtrl, control)
+				LoopCallbackForSubMenu(control, true) --This control isn't a submenu or in a submenu, this call is just here to show it does what it should (nothing) if there is no submenu to be found
 			end,
 
 			--Callback that triggers when a user left-clicks on the tutorial popup
 			--Displaying the next tutorial in sequence is handled by LibTutorial, but you can do other stuff here if you want 
 				--(It will be called -before- the next tutorialStep is shown)
-			nextCustomCallback = function(nextTutStepId) d(zo_strformat("ID: <<1>>, nextCustomCallback", nextTutStepId)) end,
+			nextCustomCallback = function(nextTutStepId) 
+				local control = GetControl("LibTutorialDescriptionCtrl")
+				LoopCallbackForSubMenu(control, false) --This control isn't a submenu or in a submenu, this call is just here to show it does what it should (nothing) if there is no submenu to be found
+			end,
 
 			--Callback that triggers when a user right-clicks on the tutorial pointer box
 			exitCustomCallback = function(currTutStepId) d(zo_strformat("ID: <<1>>, exitCustomCallback", currTutStepId)) end,
@@ -134,18 +163,30 @@ function LibTutDemo.DemoTutStepsExampleData()
 			id = "libtutpbfive",
 			title = "Test Tutorial Sequence",
 			text = "Test <LibTutorialEditBox> Text!",
-			anchorToControlData = "LibTutorialSubmenu1",
+			anchorToControlData = "LibTutorialCheckBoxCtrl7",
 			fragment = LAM:GetAddonSettingsFragment(),
 
 			iniCustomCallback = function()
-				--
+				local control = GetControl("LibTutorialCheckBoxCtrl7")
+				LoopCallbackForSubMenu(control, true)
 			end,
 
-			--nextCustomCallback = function(nextTutStepId) end,
-			--exitCustomCallback = function(currTutStepId) end,
+			--This callback won't fire because it's the last in the sequence, there is no "next"
+			nextCustomCallback = function(nextTutStepId) 
+				local control = GetControl("LibTutorialCheckBoxCtrl7")
+				LoopCallbackForSubMenu(control, false)				
+			end,
+
+			exitCustomCallback = function(nextTutStepId) 
+				local control = GetControl("LibTutorialCheckBoxCtrl7")
+				LoopCallbackForSubMenu(control, false)				
+			end,
 		},
 	}
 end
+
+----------
+----------
 
 --Setup
 local libTutExample = LibTutorialSetup.New(tutorialExampleList)
@@ -154,7 +195,7 @@ function libTutExample:SetTutorialSeen(tutorialIndex)
 	CHAT_ROUTER:AddDebugMessage("Tutorial Seen") --Replace this with SavedVar updates or however/if you want to track if a Tutorial has been seen.
 end
 
---Example Tutorial Sequence Function
+--Example Tutorial Sequence Function (Triggered with the button in the LibTutorial LAM Panel)
 function libTutExample:DisplayTutorialExampleSequence()
 	local tutorialSteps = tutorialStepsExample
 	libTutExample:StartTutorialSequence(tutorialSteps) --This is the main function you'd use to display a tutorial route.
