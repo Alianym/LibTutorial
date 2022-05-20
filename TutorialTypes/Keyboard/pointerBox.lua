@@ -165,7 +165,7 @@ function LibTutorial_PointerBox:OnDisplayTutorial(tutorialIndex, priority, title
 				end
 
 				if tutorialDetails.scrollToCtrl then
-					tutorialDetails.scrollToCtrl()
+					zo_callLater(function() tutorialDetails.scrollToCtrl() end, 100)
 				end
 
 				tutorialDetails.backdropCtrl:SetHidden(false)

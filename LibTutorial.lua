@@ -216,21 +216,21 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 	local sequenceOptions = tutorialSteps.options
 
 	if nextTutorialStepIndex and nextTutorialStepIndex > #tutorialSteps then
-		chatOutputToUser("Tutorial Sequence Finished.")
+		--chatOutputToUser("Tutorial Sequence Finished.")
 		return
 	elseif nextTutorialStepIndex then
 		tutorial = tutorialSteps[nextTutorialStepIndex]
 		currentStepId = HashString(tutorial.id)
-		chatOutputToUser("Tutorial Sequence Continuing.")
+		--chatOutputToUser("Tutorial Sequence Continuing.")
 	else
 		nextTutorialStepIndex = 1
 		tutorial = tutorialSteps[1]
 		currentStepId = HashString(tutorial.id)
-		chatOutputToUser("Tutorial Sequence Starting.")
+		--chatOutputToUser("Tutorial Sequence Starting.")
 	end
 
 	if not tutorial then 
-		chatOutputToUser("No tutorialSteps found.", true)
+		--chatOutputToUser("No tutorialSteps found.", true)
 	return end
 
 	local tutorialType = sequenceOptions.tutorialType or LIB_TUTORIAL_TYPE_POINTER_BOX
@@ -241,7 +241,23 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 
 	if tutorial.fragment == LAM:GetAddonSettingsFragment() then
 		tutorial.scrollToCtrl = function()
-			local scrollCtrl = LAM.currentAddonPanel:GetChild(1)
+			local scrollCtrl
+
+			for i=1, LAM.currentAddonPanel:GetNumChildren() do
+				local child = LAM.currentAddonPanel:GetChild(i)
+				if child then
+					local childName = child:GetName()
+					if childName:find("LAMAddonPanelContainer") then
+						scrollCtrl = LAM.currentAddonPanel:GetChild(i)
+						break
+					end
+				end
+			end
+
+			if not scrollCtrl then 
+				--chatOutputToUser("No scrollCtrl found!")
+			return end
+
 			ZO_Scroll_ScrollControlIntoCentralView(scrollCtrl, anchorTargetCtrl)
 		end
 	end
@@ -520,6 +536,12 @@ local function onAddOnLoaded(_, addOnName)
 		LAM = LibAddonMenu2
 		LAM:RegisterAddonPanel(addOnName, panelData)
 		LAM:RegisterOptionControls(addOnName, optionsTable)
+
+		CALLBACK_MANAGER:RegisterCallback("LAM-PanelClosed", function(panel)
+			--We want to clear tutorials whenever a panel is closed, regardless of who's it is.
+			local tutId = TUTSYS.tutorialHandlers[LIB_TUTORIAL_TYPE_POINTER_BOX]:GetCurrentlyDisplayedTutorialIndex()
+			TUTSYS.tutorialHandlers[LIB_TUTORIAL_TYPE_POINTER_BOX]:RemoveTutorial(tutId)
+		end)
 	end
 
 	LibTutDemo.DemoTutStepsExampleData()
