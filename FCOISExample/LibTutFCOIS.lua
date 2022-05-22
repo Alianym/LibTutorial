@@ -26,35 +26,29 @@ function LibTutFCOISDemo.DemoTutFCOISStepsExampleData()
 	local LAM = LibAddonMenu2
 	fcoisTutorialStepsExample = {
 		options = {
-			showStepNumInTitle = true,												--(boolean) Format title as "Title (#/n)"
-			tutorialType = LIB_TUTORIAL_TYPE_POINTER_BOX,							--LibTutorial Global (must be LIB_TUTORIAL_TYPE_UI_INFO_BOX for Steps/Sequence)
+			showStepNumInTitle = true,
+			tutorialType = LIB_TUTORIAL_TYPE_POINTER_BOX,
+			isLAMPanel = true,
 		},
 		[1] = {
-			id = "libtutfcois",														--ID must be at least (string) 5 characters or > (number) 9999
-			title = "Test Tutorial Sequence",										--(string)
-			text = "Test text for this tutorial!",									--(string)
-			anchorToControlData = {LEFT, "LAMCombobox2", RIGHT, 0},	--(myPoint, anchorTargetControl, anchorControlsPoint, offsetX, offsetY)	
-			fragment = LAM:GetAddonSettingsFragment(),								--Fragment to which to attach (optional), if used, will hide with fragment
+			id = "libtutfcois",													
+			title = "Test Tutorial Sequence",							
+			text = "Test text for this tutorial!",								
+			anchorToControlData = {LEFT, "LAMCombobox2", RIGHT, 0},	
 
-			--Callback that triggers just -before- the tutorial is displayed
-			--Used here to open the SubMenu as the tutorial is displayed
 			iniCustomCallback = function() 
 				local control = GetControl("LAMCombobox2")
-				LoopCallbackForSubMenu(control, true)
+				LibTutorialSetSubMenuContainerIsOpen(control, true)
 			end,
 
-			--Callback that triggers when a user left-clicks on the tutorial popup
-			--Displaying the next tutorial in sequence is handled by LibTutorial, but you can do other stuff here if you want 
-				--(It will be called -before- the next tutorialStep is shown)
 			nextCustomCallback = function(nextTutStepId) 
 				local control = GetControl("LAMCombobox2")
-				LoopCallbackForSubMenu(control, false)
+				LibTutorialSetSubMenuContainerIsOpen(control, false)
 			end,
 
-			--Callback that triggers when a user right-clicks on the tutorial pointer box
 			exitCustomCallback = function(nextTutStepId) 
 				local control = GetControl("LAMCombobox2")
-				LoopCallbackForSubMenu(control, false)
+				LibTutorialSetSubMenuContainerIsOpen(control, false)
 			end,
 		},
 		[2] = {
@@ -62,19 +56,20 @@ function LibTutFCOISDemo.DemoTutFCOISStepsExampleData()
 			title = "Test Tutorial Sequence",
 			text = "Test text for this tutorial at the second in sequence!",
 			anchorToControlData = "LAMCombobox5",
-			fragment = LAM:GetAddonSettingsFragment(),
+
 			iniCustomCallback = function() 
 				local control = GetControl("LAMCombobox5")
-				LoopCallbackForSubMenu(control, true)
+				LibTutorialSetSubMenuContainerIsOpen(control, true)
 			end,
+
 			nextCustomCallback = function(nextTutStepId) 
 				local control = GetControl("LAMCombobox5")
-				LoopCallbackForSubMenu(control, false)
+				LibTutorialSetSubMenuContainerIsOpen(control, false)
 			end,
 
 			exitCustomCallback = function(nextTutStepId) 
 				local control = GetControl("LAMCombobox5")
-				LoopCallbackForSubMenu(control, false)
+				LibTutorialSetSubMenuContainerIsOpen(control, false)
 			end,
 		},
 		--[[[3] = {

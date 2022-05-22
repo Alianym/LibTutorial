@@ -203,8 +203,29 @@ function LibTutorial:GetLibTutorialDisplayPriority(tutorialIndex)
 end
 
 -----
---Tutorial sequence handling (could probably wind up usable for any controls)
+--Tutorial sequence handling (could probably wind up usable for any controls, but currently only works with LIB_TUTORIAL_TYPE_POINTER_BOX)
 -----
+
+function LibTutorialSetSubMenuContainerIsOpen(control, open)
+	if not control then return end
+
+	while control:GetName() ~= "GuiRoot" and control do
+		if control.open ~= nil then
+			if control.disabled then return end
+			if control.open == open then 
+				return end
+
+			control.open = not control.open
+			if open then
+				control.animation:PlayFromStart()
+			else
+				control.animation:PlayFromEnd()
+			end
+		end
+
+		control = control:GetParent()
+	end	
+end
 
 function LibTutorial:OnTutorialCurrentStepFin(tutorialDetails)
 	tutorialDetails.backdropCtrl:SetHidden(true)
@@ -233,34 +254,42 @@ function LibTutorial:StartTutorialSequence(tutorialSteps, nextTutorialStepIndex)
 		--chatOutputToUser("No tutorialSteps found.", true)
 	return end
 
-	local tutorialType = sequenceOptions.tutorialType or LIB_TUTORIAL_TYPE_POINTER_BOX
+	local tutorialType = LIB_TUTORIAL_TYPE_POINTER_BOX --sequenceOptions.tutorialType or LIB_TUTORIAL_TYPE_POINTER_BOX (currently this is enforced)
 	local anchorToControlData = tutorial.anchorToControlData
 
-	local result, anchorTargetCtrlStr, anchorTargetCtrl = LibTutorial_PointerBoxSetup(tutorialType, anchorToControlData, tutorial.fragment)
+	local fragment, scrollCtrl
+	if sequenceOptions.isLAMPanel then
+		fragment = LAM:GetAddonSettingsFragment()
+	else
+		fragment = tutorial.fragment
+		scrollCtrl = tutorial.scrollCtrl
+	end
+
+	local result, anchorTargetCtrlStr, anchorTargetCtrl = LibTutorial_PointerBoxSetup(tutorialType, anchorToControlData, fragment)
 	if not result then return end
 
-	if tutorial.fragment == LAM:GetAddonSettingsFragment() then
+	if sequenceOptions.isLAMPanel then
 		tutorial.scrollToCtrl = function()
-			local scrollCtrl
-
 			for i=1, LAM.currentAddonPanel:GetNumChildren() do
 				local child = LAM.currentAddonPanel:GetChild(i)
 				if child then
 					local childName = child:GetName()
 					if childName:find("LAMAddonPanelContainer") then
-						scrollCtrl = LAM.currentAddonPanel:GetChild(i)
+						scrollCtrl = child
 						break
 					end
 				end
 			end
 
-			if not scrollCtrl then 
-				--chatOutputToUser("No scrollCtrl found!")
-			return end
+			if not scrollCtrl then chatOutputToUser("No LAM scrollCtrl found!", true) return end
 
 			ZO_Scroll_ScrollControlIntoCentralView(scrollCtrl, anchorTargetCtrl)
 		end
-	end
+	elseif scrollCtrl and scrollCtrl.scroll then
+		tutorial.scrollToCtrl = function()
+			ZO_Scroll_ScrollControlIntoCentralView(scrollCtrl, anchorTargetCtrl)
+		end
+	else chatOutputToUser("scrollCtrl invalid!", true) end
 
 	local anchorTargetCtrlX, anchorTargetCtrlY = anchorTargetCtrl:GetDimensions()
 

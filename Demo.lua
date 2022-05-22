@@ -62,7 +62,7 @@ local tutorialExampleList = {
 --Tutorial Sequence Example
 ----------
 
-local function LoopCallbackForSubMenu(control, requestOpen)
+--[[local function LoopCallbackForSubMenu(control, requestOpen)
 	if not control then return end
 
 	while control:GetName() ~= "GuiRoot" and control do
@@ -81,7 +81,7 @@ local function LoopCallbackForSubMenu(control, requestOpen)
 
 		control = control:GetParent()
 	end
-end
+end]]
 
 LibTutDemo = {}
 local tutorialStepsExample
@@ -91,19 +91,21 @@ function LibTutDemo.DemoTutStepsExampleData()
 		options = {
 			showStepNumInTitle = true,								--(boolean) Format title as "Title (#/n)"
 			tutorialType = LIB_TUTORIAL_TYPE_POINTER_BOX,			--LibTutorial Global (must be LIB_TUTORIAL_TYPE_UI_INFO_BOX for Steps/Sequence)
+			isLAMPanel = true,										--(boolean) If the sequence is for your LAM Panel, (automatically sets fragment and scrollCtr)
 		},
 		[1] = {
 			id = "libtutpb",														--ID must be at least (string) 5 characters or > (number) 9999
 			title = "Test Tutorial Sequence",										--(string)
 			text = "Test <LibTutorialDescriptionCtrl> Text!",						--(string)
-			anchorToControlData = {LEFT, "LibTutorialDescriptionCtrl", RIGHT, 0},	--(myPoint, anchorTargetControl, anchorControlsPoint, offsetX, offsetY)	
-			fragment = LAM:GetAddonSettingsFragment(),								--Fragment to which to attach (optional), if used, will hide with fragment
+			anchorToControlData = {LEFT, "LibTutorialDescriptionCtrl", RIGHT, 0},	--(myPoint, anchorTargetControl, anchorControlsPoint, offsetX, offsetY)
+			--scrollCtrl = GetControl("ScrollControl")								--(optional) The container of the scrollCtrl if required (this requires an attribute of scrollCtrl.scroll). Value is automatically set if isLAMPanel is true
+			--fragment = LAM:GetAddonSettingsFragment(),							--(optional) Fragment to which to attach the tutorial. If used, the tutorial will hide with the fragment. Value is automatically set if isLAMPanel is true
 
 			--Callback that triggers just -before- the tutorial is displayed
 			--Used here to open the SubMenu as the tutorial is displayed
 			iniCustomCallback = function()
 				local control = GetControl("LibTutorialDescriptionCtrl")
-				LoopCallbackForSubMenu(control, true) --This control isn't a submenu or in a submenu, this call is just here to show it does what it should (nothing) if there is no submenu to be found
+				LibTutorialSetSubMenuContainerIsOpen(control, true) --This control isn't a submenu or in a submenu, this call is just here to show it does what it should (nothing) if there is no submenu to be found
 			end,
 
 			--Callback that triggers when a user left-clicks on the tutorial popup
@@ -111,7 +113,6 @@ function LibTutDemo.DemoTutStepsExampleData()
 				--(It will be called -before- the next tutorialStep is shown)
 			nextCustomCallback = function(nextTutStepId) 
 				local control = GetControl("LibTutorialDescriptionCtrl")
-				LoopCallbackForSubMenu(control, false) --This control isn't a submenu or in a submenu, this call is just here to show it does what it should (nothing) if there is no submenu to be found
 			end,
 
 			--Callback that triggers when a user right-clicks on the tutorial pointer box
@@ -122,7 +123,6 @@ function LibTutDemo.DemoTutStepsExampleData()
 			title = "Test Tutorial Sequence",
 			text = "Test <LibTutorialCheckBoxCtrl> Text!",
 			anchorToControlData = "LibTutorialCheckBoxCtrl6",
-			fragment = LAM:GetAddonSettingsFragment(),
 
 			iniCustomCallback = function()
 				--
@@ -136,7 +136,6 @@ function LibTutDemo.DemoTutStepsExampleData()
 			title = "Test Tutorial Sequence",
 			text = "Test <LibTutorialHeaderCtrl> Text!",
 			anchorToControlData = "LibTutorialEditBox2",
-			fragment = LAM:GetAddonSettingsFragment(),
 
 			iniCustomCallback = function()
 				--
@@ -150,7 +149,6 @@ function LibTutDemo.DemoTutStepsExampleData()
 			title = "Test Tutorial Sequence",
 			text = "Test <LibTutorialEditBox> Text!",
 			anchorToControlData = "LibTutorialEditBox3",
-			fragment = LAM:GetAddonSettingsFragment(),
 
 			iniCustomCallback = function()
 				--
@@ -164,22 +162,21 @@ function LibTutDemo.DemoTutStepsExampleData()
 			title = "Test Tutorial Sequence",
 			text = "Test <LibTutorialEditBox> Text!",
 			anchorToControlData = "LibTutorialCheckBoxCtrl7",
-			fragment = LAM:GetAddonSettingsFragment(),
 
 			iniCustomCallback = function()
 				local control = GetControl("LibTutorialCheckBoxCtrl7")
-				LoopCallbackForSubMenu(control, true)
+				LibTutorialSetSubMenuContainerIsOpen(control, true)
 			end,
 
 			--This callback won't fire because it's the last in the sequence, there is no "next"
 			nextCustomCallback = function(nextTutStepId) 
 				local control = GetControl("LibTutorialCheckBoxCtrl7")
-				LoopCallbackForSubMenu(control, false)				
+				LibTutorialSetSubMenuContainerIsOpen(control, false)				
 			end,
 
 			exitCustomCallback = function(nextTutStepId) 
 				local control = GetControl("LibTutorialCheckBoxCtrl7")
-				LoopCallbackForSubMenu(control, false)				
+				LibTutorialSetSubMenuContainerIsOpen(control, false)				
 			end,
 		},
 	}
