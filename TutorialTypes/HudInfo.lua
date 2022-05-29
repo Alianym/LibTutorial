@@ -28,11 +28,11 @@ function LibTutorial_HudInfo:SetupTutorial(parent, template, name)
 	self.tutorialAnimation = ANIMATION_MANAGER:CreateTimelineFromVirtual("HudInfoBoxTutorialAnimation", self.tutorial)
 	self.tutorialAnimation:SetHandler("OnStop", function(timeline) 
 		if not timeline:IsPlayingBackward() then
-			FireTutorialHiddenEvent(self.tutorialIndex)
+			FireTutorialHiddenEvent(self.tutorialId)
 			self:SetHiddenForReason("inactive", true)
 			if #self.queue > 0 then
-				local nextTutorialIndex = table.remove(self.queue, 1)
-				self:DisplayTutorial(nextTutorialIndex)
+				local nextTutorialId = table.remove(self.queue, 1)
+				return self:DisplayTutorial(nextTutorialId)
 			end
 		end
 	end)
@@ -42,17 +42,17 @@ function LibTutorial_HudInfo:GetTutorialType()
 	return LIB_TUTORIAL_TYPE_HUD_INFO
 end
 
-function LibTutorial_HudInfo:GetTutorialInfo(tutorialIndex)
+function LibTutorial_HudInfo:GetTutorialInfo(tutorialId)
 	--Currently Unused
 end
 
-function LibTutorial_HudInfo:SetTutorialSeen(tutorialIndex)
+function LibTutorial_HudInfo:SetTutorialSeen(tutorialId)
 	--User Overridden
 end
 
 local BASE_TUTORIAL_HEIGHT = 170
-function LibTutorial_HudInfo:DisplayTutorial(tutorialIndex, title, desc)
-	self.tutorialIndex = tutorialIndex
+function LibTutorial_HudInfo:DisplayTutorial(tutorialId, title, desc)
+	self.tutorialId = tutorialId
 	local isInGamepadMode = IsInGamepadPreferredMode()
 	if isInGamepadMode then
 		self.tutorial = self.tutorialGamepad
@@ -62,9 +62,9 @@ function LibTutorial_HudInfo:DisplayTutorial(tutorialIndex, title, desc)
 		self.tutorialAnimation = self.tutorialAnimationKeyboard
 	end
 
-	title = title or self.queueData[tutorialIndex].title
-	local description = desc or self.queueData[tutorialIndex].desc
-	local helpCategoryIndex, helpIndex = nil --GetTutorialLinkedHelpInfo(tutorialIndex)
+	title = title or self.queueData[tutorialId].title
+	local description = desc or self.queueData[tutorialId].desc
+	local helpCategoryIndex, helpIndex = nil --GetTutorialLinkedHelpInfo(tutorialId)
 	local hasHelp = helpCategoryIndex ~= nil and helpIndex ~= nil
 	self.tutorial.title:SetText(title)
 	self.tutorial.description:SetText(description)
@@ -83,34 +83,36 @@ function LibTutorial_HudInfo:DisplayTutorial(tutorialIndex, title, desc)
 
 	self.tutorialAnimation:PlayBackward()
 	self:SetHiddenForReason("inactive", false)
-	self:SetCurrentlyDisplayedTutorialIndex(tutorialIndex)
+	self:SetCurrentlyDisplayedTutorialIndex(tutorialId)
 	self.currentlyDisplayedTutorialTimeLeft = AUTO_CLOSE_MS
 
 	PlaySound(SOUNDS.TUTORIAL_INFO_SHOWN)
+
+	return true
 end
 
-function LibTutorial_HudInfo:OnDisplayTutorial(tutorialIndex, priority, title, desc)
-	if not self:IsTutorialDisplayedOrQueued(tutorialIndex) then
+function LibTutorial_HudInfo:OnDisplayTutorial(tutorialId, priority, title, desc)
+	if not self:IsTutorialDisplayedOrQueued(tutorialId) then
 		if not self:CanShowTutorial() then
 			local _, insertPosition = zo_binarysearch(priority, self.queue, BinaryInsertComparer)
-			table.insert(self.queue, insertPosition, tutorialIndex)
-			self.queueData[tutorialIndex] = {title = title, desc = desc}
+			table.insert(self.queue, insertPosition, tutorialId)
+			self.queueData[tutorialId] = {title = title, desc = desc}
 		else
-			self:DisplayTutorial(tutorialIndex, title, desc)
+			return self:DisplayTutorial(tutorialId, title, desc)
 		end
 	end
 end
 
-function LibTutorial_HudInfo:RemoveTutorial(tutorialIndex)
-	if self:GetCurrentlyDisplayedTutorialIndex() == tutorialIndex then
-		self:SetTutorialSeen(tutorialIndex)
+function LibTutorial_HudInfo:RemoveTutorial(tutorialId)
+	if self:GetCurrentlyDisplayedTutorialIndex() == tutorialId then
+		self:SetTutorialSeen(tutorialId)
 
 		self:SetCurrentlyDisplayedTutorialIndex(nil)
 		self.currentlyDisplayedTutorialTimeLeft = nil
 		self.tutorialAnimation:PlayForward()
 	else
-		self.queueData[tutorialIndex] = nil
-		self:RemoveFromQueue(self.queue, tutorialIndex)
+		self.queueData[tutorialId] = nil
+		self:RemoveFromQueue(self.queue, tutorialId)
 	end
 end
 

@@ -93,25 +93,11 @@ end
 --Initialize class
 -----
 function LibTutorial:Initialize(tutorialArray)
-	local obj = self
-	obj.highlightCtrls = {}
-	obj:RegisterTutorials(tutorialArray)
-
-	function LibTutorial_HudInfo:SetTutorialSeen(tutorialIndex)
-		obj:SetTutorialSeen(tutorialIndex)
-	end
-	function LibTutorial_BriefHud:SetTutorialSeen(tutorialIndex)
-		obj:SetTutorialSeen(tutorialIndex)
-	end
-	function LibTutorial_UiInfoBox:SetTutorialSeen(tutorialIndex)
-		obj:SetTutorialSeen(tutorialIndex)
-	end
-	function LibTutorial_PointerBox:SetTutorialSeen(tutorialIndex)
-		obj:SetTutorialSeen(tutorialIndex)
-	end
+	self.highlightCtrls = {}
+	self:RegisterTutorials(tutorialArray)
 end
 
-function LibTutorial:SetTutorialSeen(tutorialIndex)
+function LibTutorial:SetTutorialSeen(tutorialId)
 	--Should be overriden in subclasses
 end
 
@@ -154,20 +140,20 @@ local function LibTutorial_PointerBoxSetup(tutorialType, anchorToControlData, fr
 	return true, anchorTargetCtrlStr, anchorTargetCtrl
 end
 
-function LibTutorial:DisplayTutorial(tutorialIndex, anchorToControlData, fragment)
-	local tutorialIndexHashed = HashString(tutorialIndex)
+function LibTutorial:DisplayTutorial(tutorialId, anchorToControlData, fragment)
+	local tutorialIdHashed = HashString(tutorialId)
 
-	if not self.tutorials[tutorialIndexHashed] then
-		chatOutputToUser("No tutorialIndex found: " ..tos(tutorialIndex), true)
+	if not self.tutorials[tutorialIdHashed] then
+		chatOutputToUser("No tutorialId found: " ..tos(tutorialId), true)
 		return
 	end
 
-	local tutorialType = self:GetLibTutorialType(tutorialIndexHashed)
+	local tutorialType = self:GetLibTutorialType(tutorialIdHashed)
 
 	if TUTSYS.tutorialHandlers[tutorialType] then
 		--Handles Pointer Box when not in a sequence
 		if tutorialType == LIB_TUTORIAL_TYPE_POINTER_BOX then
-			local tutsData = self.tutorials[tutorialIndexHashed]
+			local tutsData = self.tutorials[tutorialIdHashed]
 
 			local fragment = tutsData.fragment
 			local anchorToControlData = tutsData.anchorToControlData
@@ -176,9 +162,9 @@ function LibTutorial:DisplayTutorial(tutorialIndex, anchorToControlData, fragmen
 				return end
 		end
 
-		local priority = self:GetLibTutorialDisplayPriority(tutorialIndexHashed)
-		local title, desc = self:GetLibTutorialInfo(tutorialIndexHashed)
-		TUTSYS.tutorialHandlers[tutorialType]:OnDisplayTutorial(tutorialIndexHashed, priority, title, desc, tutorialType)
+		local priority = self:GetLibTutorialDisplayPriority(tutorialIdHashed)
+		local title, desc = self:GetLibTutorialInfo(tutorialIdHashed)
+		return TUTSYS.tutorialHandlers[tutorialType]:OnDisplayTutorial(tutorialIdHashed, priority, title, desc, tutorialType)
 	end
 end
 
@@ -186,20 +172,20 @@ end
 --New 'Get' Functions
 -----
 
-function LibTutorial:GetLibTutorialType(tutorialIndex)
-	return self.tutorials[tutorialIndex].tutorialType
+function LibTutorial:GetLibTutorialType(tutorialId)
+	return self.tutorials[tutorialId].tutorialType
 end
 
-function LibTutorial:GetLibTutorialInfo(tutorialIndex)
-	local tutsData = self.tutorials[tutorialIndex]
+function LibTutorial:GetLibTutorialInfo(tutorialId)
+	local tutsData = self.tutorials[tutorialId]
 	local title = tutsData.title
 	local text = tutsData.text
 
 	return title, text
 end
 
-function LibTutorial:GetLibTutorialDisplayPriority(tutorialIndex)
-	return self.tutorials[tutorialIndex].displayPriority
+function LibTutorial:GetLibTutorialDisplayPriority(tutorialId)
+	return self.tutorials[tutorialId].displayPriority
 end
 
 -----

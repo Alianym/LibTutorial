@@ -62,27 +62,6 @@ local tutorialExampleList = {
 --Tutorial Sequence Example
 ----------
 
---[[local function LoopCallbackForSubMenu(control, requestOpen)
-	if not control then return end
-
-	while control:GetName() ~= "GuiRoot" and control do
-		if control.open ~= nil then
-			if control.disabled then return end
-			if control.open == requestOpen then 
-				return end
-
-			control.open = not control.open
-			if requestOpen then
-				control.animation:PlayFromStart()
-			else
-				control.animation:PlayFromEnd()
-			end
-		end
-
-		control = control:GetParent()
-	end
-end]]
-
 LibTutDemo = {}
 local tutorialStepsExample
 function LibTutDemo.DemoTutStepsExampleData()
@@ -188,25 +167,40 @@ end
 --Setup
 local libTutExample = LibTutorialSetup.New(tutorialExampleList)
 LIB_TUTORIAL_EXAMPLE = libTutExample
-function libTutExample:SetTutorialSeen(tutorialIndex)
-	CHAT_ROUTER:AddDebugMessage("Tutorial Seen") --Replace this with SavedVar updates or however/if you want to track if a Tutorial has been seen.
+
+local function GetTutorialSeen(tutorialId)
+	return false
 end
+
+local function SetTutorialSeen(tutorialId)
+	CHAT_ROUTER:AddDebugMessage("Tutorial Seen: "..tostring(tutorialId)) --Replace this with SavedVar updates or however/if you want to track if a tutorial has been seen
+end
+
+--Example Slash Command + Function
+local function DisplayTutorialExample(tutorialId)
+	if not GetTutorialSeen(tutorialId) then
+		if LIB_TUTORIAL_EXAMPLE:DisplayTutorial(tutorialId) then
+			SetTutorialSeen(tutorialId, true)
+		end
+	end
+end
+SLASH_COMMANDS["/libtutex"] = DisplayTutorialExample --E.G. Usage: /libtuteex hudinfo
 
 --Example Tutorial Sequence Function (Triggered with the button in the LibTutorial LAM Panel)
 function libTutExample:DisplayTutorialExampleSequence()
 	local tutorialSteps = tutorialStepsExample
-	libTutExample:StartTutorialSequence(tutorialSteps) --This is the main function you'd use to display a tutorial route.
+	libTutExample:StartTutorialSequence(tutorialSteps) --This is the main function you'd use to display a tutorial route
 end
-
---Example Slash Command + Function
-local function DisplayTutorialExample(tutorialIndex)
-	libTutExample:DisplayTutorial(tutorialIndex) --This is the main function you'd use to display your tutorial.
-end
-SLASH_COMMANDS["/libtutex"] = DisplayTutorialExample --E.G. Usage: /libtuteex hudinfo
 
 --PointerBox
 --Example Slash Command + Function
 local function DisplayTutorialPointerBoxExample()
-	libTutExample:DisplayTutorial("pointerbox")
+	local tutorialId = "pointerbox"
+
+	if not GetTutorialSeen(tutorialId) then
+		if LIB_TUTORIAL_EXAMPLE:DisplayTutorial(tutorialId) then
+			SetTutorialSeen(tutorialId, true)
+		end
+	end
 end
 SLASH_COMMANDS["/libtutpbsolo"] = DisplayTutorialPointerBoxExample

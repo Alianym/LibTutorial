@@ -23,11 +23,11 @@ function LibTutorial_UiInfoBox:Initialize()
 		title = {},
 		customControl = dialogControl,
 		noChoiceCallback = function(dialog)
-			dialog.data.owner:RemoveTutorial(dialog.data.tutorialIndex, TUTORIAL_SEEN)
+			dialog.data.owner:RemoveTutorial(dialog.data.tutorialId, TUTORIAL_SEEN)
 		end,
 		finishedCallback = function(dialog)
 			if dialog.data then
-				FireTutorialHiddenEvent(dialog.data.tutorialIndex)
+				FireTutorialHiddenEvent(dialog.data.tutorialId)
 			end
 		end,
 		buttons =
@@ -38,7 +38,7 @@ function LibTutorial_UiInfoBox:Initialize()
 				keybind = "DIALOG_NEGATIVE",
 				clickSound = SOUNDS.DIALOG_ACCEPT,
 				callback =  function(dialog)
-					dialog.data.owner:RemoveTutorial(dialog.data.tutorialIndex, TUTORIAL_SEEN)
+					dialog.data.owner:RemoveTutorial(dialog.data.tutorialId, TUTORIAL_SEEN)
 				end,
 			},
 		}
@@ -76,23 +76,23 @@ function LibTutorial_UiInfoBox:Initialize()
 					keybind =    "DIALOG_PRIMARY",
 					clickSound = SOUNDS.DIALOG_ACCEPT,
 					callback =  function(dialog)
-						dialog.data.owner:RemoveTutorial(dialog.data.tutorialIndex, TUTORIAL_SEEN)
+						dialog.data.owner:RemoveTutorial(dialog.data.tutorialId, TUTORIAL_SEEN)
 					end,
 				}
 			},
 			noChoiceCallback = function(dialog)
 				if dialog.data then
-					dialog.data.owner:RemoveTutorial(dialog.data.tutorialIndex, TUTORIAL_SEEN)
+					dialog.data.owner:RemoveTutorial(dialog.data.tutorialId, TUTORIAL_SEEN)
 				end
 			end,
 			finishedCallback = function(dialog)
 				if dialog.data then
-					FireTutorialHiddenEvent(dialog.data.tutorialIndex)
+					FireTutorialHiddenEvent(dialog.data.tutorialId)
 				end
 			end,
 			removedFromQueueCallback = function(data)
 				if data then
-					data.owner:RemoveTutorial(data.tutorialIndex, TUTORIAL_NOT_SEEN)
+					data.owner:RemoveTutorial(data.tutorialId, TUTORIAL_NOT_SEEN)
 				end
 			end,
 		}
@@ -114,15 +114,15 @@ function LibTutorial_UiInfoBox:GetTutorialType()
 	return LIB_TUTORIAL_TYPE_UI_INFO_BOX
 end
 
-function LibTutorial_UiInfoBox:DisplayTutorial(tutorialIndex, title, desc)
+function LibTutorial_UiInfoBox:DisplayTutorial(tutorialId, title, desc)
 	self.title = title
 	self.description = desc
 
-	self:SetCurrentlyDisplayedTutorialIndex(tutorialIndex)
+	self:SetCurrentlyDisplayedTutorialIndex(tutorialId)
 	self.gamepadMode = IsInGamepadPreferredMode()
 
 	if self.gamepadMode then
-		ZO_Dialogs_ShowGamepadDialog("LIB_TUTORIAL_UI_INFO_GAMEPAD", { tutorialIndex = tutorialIndex, owner = self})
+		ZO_Dialogs_ShowGamepadDialog("LIB_TUTORIAL_UI_INFO_GAMEPAD", { tutorialId = tutorialId, owner = self})
 	else
 		self.dialogInfo.title.text = self.title
 		self.dialogDescription:SetText(self.description)
@@ -136,32 +136,34 @@ function LibTutorial_UiInfoBox:DisplayTutorial(tutorialIndex, title, desc)
 		self.dialogPane:SetHeight(paneHeight)
 
 		ZO_Scroll_ResetToTop(self.dialogPane)
-		ZO_Dialogs_ShowDialog("LIB_TUTORIAL_UI_INFO", { tutorialIndex = tutorialIndex, owner = self})
+		ZO_Dialogs_ShowDialog("LIB_TUTORIAL_UI_INFO", { tutorialId = tutorialId, owner = self})
 	end
+
+	return true
 end
 
-function LibTutorial_UiInfoBox:OnDisplayTutorial(tutorialIndex, priority, title, desc, tutorialType)
+function LibTutorial_UiInfoBox:OnDisplayTutorial(tutorialId, priority, title, desc, tutorialType)
 	--if not IsGameCameraActive() or SCENE_MANAGER:IsInUIMode() then
-		if not self:IsTutorialDisplayedOrQueued(tutorialIndex) then
+		if not self:IsTutorialDisplayedOrQueued(tutorialId) then
 			if self:CanShowTutorial() then
-				self:DisplayTutorial(tutorialIndex, title, desc)
+				return self:DisplayTutorial(tutorialId, title, desc)
 			end
 		end
 	--end
 end
 
-function LibTutorial_UiInfoBox:OnRemoveTutorial(tutorialIndex)
-	self:RemoveTutorial(tutorialIndex, TUTORIAL_SEEN)
+function LibTutorial_UiInfoBox:OnRemoveTutorial(tutorialId)
+	self:RemoveTutorial(tutorialId, TUTORIAL_SEEN)
 end
 
-function LibTutorial_UiInfoBox:SetTutorialSeen(tutorialIndex)
+function LibTutorial_UiInfoBox:SetTutorialSeen(tutorialId)
 	--Overridden
 end
 
-function LibTutorial_UiInfoBox:RemoveTutorial(tutorialIndex, seen, isTutorialSequence)
-	if self:GetCurrentlyDisplayedTutorialIndex() == tutorialIndex then
+function LibTutorial_UiInfoBox:RemoveTutorial(tutorialId, seen, isTutorialSequence)
+	if self:GetCurrentlyDisplayedTutorialIndex() == tutorialId then
 		if seen then
-			self:SetTutorialSeen(tutorialIndex)
+			self:SetTutorialSeen(tutorialId)
 		end
 
 		self:SetCurrentlyDisplayedTutorialIndex(nil)
@@ -170,7 +172,7 @@ function LibTutorial_UiInfoBox:RemoveTutorial(tutorialIndex, seen, isTutorialSeq
 		end
 		ZO_Dialogs_ReleaseDialog("LIB_TUTORIAL_UI_INFO_GAMEPAD")
 	else
-		self:RemoveFromQueue(self.queue, tutorialIndex)
+		self:RemoveFromQueue(self.queue, tutorialId)
 	end
 end
 

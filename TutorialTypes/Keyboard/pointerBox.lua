@@ -61,16 +61,16 @@ function LibTutorial_PointerBox:SuppressTutorials(suppress, reason)
 	--Suppression is disabled in LibTutorial_PointerBox
 end
 
-function LibTutorial_HudInfo:GetTutorialInfo(tutorialIndex)
+function LibTutorial_PointerBox:GetTutorialInfo(tutorialId)
 	--Currently Unused
 end
 
-function LibTutorial_HudInfo:SetTutorialSeen(tutorialIndex)
+function LibTutorial_PointerBox:SetTutorialSeen(tutorialId)
 	--User Overridden
 end
 
-function LibTutorial_PointerBox:DisplayTutorial(tutorialIndex, title, desc, tutorialType, tutorialDetails)
-	self.tutorialIndex = tutorialIndex
+function LibTutorial_PointerBox:DisplayTutorial(tutorialId, title, desc, tutorialType, tutorialDetails)
+	self.tutorialId = tutorialId
 	local title = (tutorialDetails and tutorialDetails.title) or title
 	local description = (tutorialDetails and tutorialDetails.desc) or desc
 	local trigger = tutorialType
@@ -87,7 +87,7 @@ function LibTutorial_PointerBox:DisplayTutorial(tutorialIndex, title, desc, tuto
 
 	self.pointerBox:SetOnHiddenCallback(function()
 		self.pointerBox = nil
-		self:RemoveTutorial(tutorialIndex)
+		self:RemoveTutorial(tutorialId)
 	end)
 
 	layoutInfo.anchor:Set(self.pointerBox)
@@ -128,8 +128,10 @@ function LibTutorial_PointerBox:DisplayTutorial(tutorialIndex, title, desc, tuto
 
 	self.tutorialDetails = tutorialDetails
 
-	self:SetTutorialSeen(tutorialIndex)
-	self:SetCurrentlyDisplayedTutorialIndex(tutorialIndex, trigger)
+	self:SetTutorialSeen(tutorialId)
+	self:SetCurrentlyDisplayedTutorialIndex(tutorialId, trigger)
+
+	return true
 end
 
 do
@@ -156,8 +158,8 @@ do
 	end
 end
 
-function LibTutorial_PointerBox:OnDisplayTutorial(tutorialIndex, priority, title, desc, tutorialType, tutorialDetails)
-	 if tutorialIndex ~= self:GetCurrentlyDisplayedTutorialIndex() then
+function LibTutorial_PointerBox:OnDisplayTutorial(tutorialId, priority, title, desc, tutorialType, tutorialDetails)
+	 if tutorialId ~= self:GetCurrentlyDisplayedTutorialIndex() then
 		if self:CanShowTutorial() then
 			if tutorialDetails then
 				if tutorialDetails.iniCustomCallback then
@@ -171,7 +173,7 @@ function LibTutorial_PointerBox:OnDisplayTutorial(tutorialIndex, priority, title
 				tutorialDetails.backdropCtrl:SetHidden(false)
 			end
 
-			self:DisplayTutorial(tutorialIndex, title, desc, tutorialType, tutorialDetails)
+			return self:DisplayTutorial(tutorialId, title, desc, tutorialType, tutorialDetails)
 		end
 	end
 end
@@ -187,8 +189,8 @@ function LibTutorial_PointerBox:RemoveTutorialByTrigger(tutorialTrigger)
 	end
 end
 
-function LibTutorial_PointerBox:RemoveTutorial(tutorialIndex)
-	if self:GetCurrentlyDisplayedTutorialIndex() == tutorialIndex then
+function LibTutorial_PointerBox:RemoveTutorial(tutorialId)
+	if self:GetCurrentlyDisplayedTutorialIndex() == tutorialId then
 		if self.tutorialDetails then 
 			self.tutorialDetails.tutObj:OnTutorialCurrentStepFin(self.tutorialDetails)
 		end
