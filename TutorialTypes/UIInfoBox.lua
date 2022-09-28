@@ -27,7 +27,7 @@ function LibTutorial_UiInfoBox:Initialize()
 		end,
 		finishedCallback = function(dialog)
 			if dialog.data then
-				FireTutorialHiddenEvent(dialog.data.tutorialId)
+				--FireTutorialHiddenEvent(dialog.data.tutorialId)
 			end
 		end,
 		buttons =
@@ -87,7 +87,7 @@ function LibTutorial_UiInfoBox:Initialize()
 			end,
 			finishedCallback = function(dialog)
 				if dialog.data then
-					FireTutorialHiddenEvent(dialog.data.tutorialId)
+					--FireTutorialHiddenEvent(dialog.data.tutorialId)
 				end
 			end,
 			removedFromQueueCallback = function(data)
