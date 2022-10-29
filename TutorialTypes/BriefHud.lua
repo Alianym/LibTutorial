@@ -36,8 +36,7 @@ function LibTutorial_BriefHud:Initialize(parent)
 	
 	self.tutorialAnimation = ANIMATION_MANAGER:CreateTimelineFromVirtual("HudBriefTutorialAnimation", self.tutorial)
 	self.tutorialAnimation:SetHandler("OnStop", function(timeline) 
-		if not timeline:IsPlayingBackward() then 
-			--FireTutorialHiddenEvent(self.tutorialId)
+		if not timeline:IsPlayingBackward() then
 			SHARED_INFORMATION_AREA:SetHidden(self.tutorial, true) 
 		end 
 	end)

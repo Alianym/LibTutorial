@@ -112,6 +112,16 @@ local function DisplayFCOISTutorialExampleSequence()
 end
 SLASH_COMMANDS["/libtutfcois"] = DisplayFCOISTutorialExampleSequence
 
+local function onAddOnLoaded(_, addOnName)
+	if addOnName ~= LibTutorialSetup.name then return end
+
+	LibTutFCOISDemo.DemoTutFCOISStepsExampleData()
+
+	EVENT_MANAGER:UnregisterForEvent(LibTutorialSetup.name, EVENT_ADD_ON_LOADED)
+end
+
+EVENT_MANAGER:RegisterForEvent(LibTutorialSetup.name.."FCOISDemo", EVENT_ADD_ON_LOADED, onAddOnLoaded)
+
 -----
 --This is an example onAddOnLoaded for FCOIS
 --Will need to run the above function at AddOn load or it will bug

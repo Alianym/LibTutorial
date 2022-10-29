@@ -28,7 +28,6 @@ function LibTutorial_HudInfo:SetupTutorial(parent, template, name)
 	self.tutorialAnimation = ANIMATION_MANAGER:CreateTimelineFromVirtual("HudInfoBoxTutorialAnimation", self.tutorial)
 	self.tutorialAnimation:SetHandler("OnStop", function(timeline) 
 		if not timeline:IsPlayingBackward() then
-			--FireTutorialHiddenEvent(self.tutorialId)
 			self:SetHiddenForReason("inactive", true)
 			if #self.queue > 0 then
 				local nextTutorialId = table.remove(self.queue, 1)

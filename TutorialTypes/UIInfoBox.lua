@@ -25,11 +25,7 @@ function LibTutorial_UiInfoBox:Initialize()
 		noChoiceCallback = function(dialog)
 			dialog.data.owner:RemoveTutorial(dialog.data.tutorialId, TUTORIAL_SEEN)
 		end,
-		finishedCallback = function(dialog)
-			if dialog.data then
-				--FireTutorialHiddenEvent(dialog.data.tutorialId)
-			end
-		end,
+		finishedCallback = function(dialog) end,
 		buttons =
 		{
 			{
@@ -85,11 +81,7 @@ function LibTutorial_UiInfoBox:Initialize()
 					dialog.data.owner:RemoveTutorial(dialog.data.tutorialId, TUTORIAL_SEEN)
 				end
 			end,
-			finishedCallback = function(dialog)
-				if dialog.data then
-					--FireTutorialHiddenEvent(dialog.data.tutorialId)
-				end
-			end,
+			finishedCallback = function(dialog) end,
 			removedFromQueueCallback = function(data)
 				if data then
 					data.owner:RemoveTutorial(data.tutorialId, TUTORIAL_NOT_SEEN)

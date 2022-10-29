@@ -560,7 +560,7 @@ local function onAddOnLoaded(_, addOnName)
 	end
 
 	LibTutDemo.DemoTutStepsExampleData()
-	LibTutFCOISDemo.DemoTutFCOISStepsExampleData()
+	--LibTutFCOISDemo.DemoTutFCOISStepsExampleData()
 
 	EM:UnregisterForEvent(libName, EVENT_ADD_ON_LOADED)
 end
