@@ -4,7 +4,7 @@
 ## Version: 1.14
 ## AddOnVersion: 000114
 ## IsLibrary: true
-## APIVersion: 101035 101036
+## APIVersion: 101045 101046
 ## OptionalDependsOn: LibAddonMenu-2.0>=32
 
 ;Tutorial Types
